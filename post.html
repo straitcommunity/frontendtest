@@ -604,7 +604,7 @@
     }
 
     /* =========================
-       COMMENTS SECTION - ENHANCED
+       COMMENTS SECTION - ENHANCED WITH THREADS
        ========================= */
     .comments-section {
       margin-top: 1rem;
@@ -829,6 +829,47 @@
       line-height: 1.5;
       margin-bottom: 0.75rem;
       word-wrap: break-word;
+    }
+
+    /* THREADED REPLIES */
+    .comment-replies {
+      margin-left: 2rem;
+      margin-top: 1rem;
+      border-left: 2px solid var(--border-color);
+      padding-left: 1rem;
+      display: none;
+    }
+
+    .comment-replies.expanded {
+      display: block;
+    }
+
+    .replies-toggle {
+      color: var(--primary-color);
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: color 0.2s ease;
+    }
+
+    .replies-toggle:hover {
+      color: var(--primary-hover);
+      text-decoration: underline;
+    }
+
+    .reply-count {
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 10px;
+      margin-left: 0.25rem;
     }
 
     .comment-reply-link {
@@ -1553,6 +1594,12 @@
         height: 250px;
       }
       
+      /* Adjust threaded replies for mobile */
+      .comment-replies {
+        margin-left: 1rem;
+        padding-left: 0.75rem;
+      }
+      
       /* Show comments section on mobile */
       .comments-section {
         display: block !important;
@@ -1703,6 +1750,12 @@
       .post-images:has(img:nth-child(5):last-child) img:first-child {
         height: 150px;
       }
+      
+      /* Adjust threaded replies for very small screens */
+      .comment-replies {
+        margin-left: 0.5rem;
+        padding-left: 0.5rem;
+      }
     }
 
     @media (max-width: 360px) {
@@ -1775,6 +1828,25 @@
     .mb-3 { margin-bottom: 1rem; }
     .mb-4 { margin-bottom: 1.5rem; }
     .mb-5 { margin-bottom: 2rem; }
+
+
+    .verification-badge {
+  margin-left: 4px;
+  font-size: 0.9em;
+}
+
+.blue-badge {
+  color: #3b82f6; /* Blue color for premium */
+}
+
+.golden-badge {
+  color: #f59e0b; /* Gold/amber color for management/celebrity */
+}
+
+/* For comment authors specifically */
+.comment-author-info h5 .verification-badge {
+  font-size: 0.85em;
+}
   </style>
 </head>
 <body>
@@ -2131,24 +2203,25 @@
   }
 
   // =========================
-  // VERIFICATION BADGE FUNCTIONS
+  // VERIFICATION BADGE FUNCTIONS - FIXED FOR COMMENTS TOO
   // =========================
   function getVerificationBadge(user) {
     if (!user) return '';
     
-    let badge = '';
+    let badges = '';
     
     // Add blue verification badge for premium membership
-    if (user.membership === 'premium' || user.isPremium === true || user.role === 'premium') {
-      badge += '<i class="fas fa-check-circle blue-badge verification-badge" title="Premium Member"></i>';
+    // Check membership property (from your database query)
+    if (user.membership === 'premium') {
+      badges += '<i class="fas fa-check-circle blue-badge verification-badge" title="Premium Member"></i>';
     }
     
-    // Add golden crown for management or celebrity roles
-    if (user.role === 'management' || user.role === 'celebrity' || user.isCelebrity === true) {
-      badge += '<i class="fas fa-crown golden-badge verification-badge" title="Verified Account"></i>';
+    // Add golden crown for management, celebrity, or admin roles
+    if (user.role === 'management' || user.role === 'celebrity' || user.role === 'admin') {
+      badges += '<i class="fas fa-crown golden-badge verification-badge" title="Verified Account"></i>';
     }
     
-    return badge;
+    return badges;
   }
 
   function renderAuthorWithBadge(author) {
@@ -2250,7 +2323,7 @@
       ? `${currentUser.state}, ${currentUser.country}`
       : (currentUser.country || 'Earth');
     
-    // Get user badges
+    // Get user badges - FIXED: Using the updated function
     const userBadges = getVerificationBadge(currentUser);
     
     // Desktop sidebar profile
@@ -2595,6 +2668,16 @@
       if (response.ok) {
         const data = await response.json();
         currentPost = data.post;
+        
+        // Ensure comments are sorted newest to oldest
+        if (currentPost.comments) {
+          currentPost.comments.sort((a, b) => {
+            const dateA = new Date(a.displayDate || a.createdAt);
+            const dateB = new Date(b.displayDate || b.createdAt);
+            return dateB - dateA; // Newest first
+          });
+        }
+        
         renderPost();
         
         // Check for hash navigation to specific comment
@@ -2653,7 +2736,7 @@
     const isLikedByCurrentUser = currentPost.likes?.some(like => like.userId === currentUser?.id) || false;
     const commentCount = currentPost.comments?.length || 0;
     
-    // Use displayDate which is already set in backend
+    // Use displayDate (backdatedAt) if available, otherwise createdAt
     const displayDate = currentPost.displayDate || currentPost.createdAt;
     const formattedDate = new Date(displayDate).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -2677,7 +2760,21 @@
       imagesHTML += `</div>`;
     }
     
-    // Render all comments
+    // Render all comments - organize into threads
+    const topLevelComments = currentPost.comments?.filter(comment => !comment.replyTo) || [];
+    const repliesMap = {};
+    
+    // Build replies map
+    currentPost.comments?.forEach(comment => {
+      if (comment.replyTo) {
+        if (!repliesMap[comment.replyTo]) {
+          repliesMap[comment.replyTo] = [];
+        }
+        repliesMap[comment.replyTo].push(comment);
+      }
+    });
+    
+    // Render comments section
     let commentsHTML = '';
     if (currentPost.comments && currentPost.comments.length > 0) {
       commentsHTML = `
@@ -2713,9 +2810,9 @@
             </div>
           </div>
           
-          <!-- Comments List -->
+          <!-- Comments List - Newest to Oldest -->
           <div class="comments-list" id="comments-list">
-            ${currentPost.comments.map(comment => renderComment(comment)).join('')}
+            ${topLevelComments.map(comment => renderCommentWithReplies(comment, repliesMap)).join('')}
           </div>
         </div>
       `;
@@ -2799,12 +2896,43 @@
     commentMoreDropdowns = Array.from(document.querySelectorAll('.comment-more-dropdown'));
   }
 
+  function renderCommentWithReplies(comment, repliesMap) {
+    const commentHTML = renderComment(comment);
+    const replies = repliesMap[comment.id] || [];
+    
+    if (replies.length > 0) {
+      // Sort replies newest to oldest
+      replies.sort((a, b) => {
+        const dateA = new Date(a.displayDate || a.createdAt);
+        const dateB = new Date(b.displayDate || b.createdAt);
+        return dateB - dateA; // Newest first
+      });
+      
+      const repliesHTML = replies.map(reply => renderComment(reply)).join('');
+      
+      return `
+        ${commentHTML}
+        <div class="comment-replies" id="replies-${comment.id}">
+          ${repliesHTML}
+        </div>
+        <button class="replies-toggle" data-comment-id="${comment.id}">
+          <i class="fas fa-chevron-down"></i>
+          View ${replies.length} ${replies.length === 1 ? 'reply' : 'replies'}
+          <span class="reply-count">${replies.length}</span>
+        </button>
+      `;
+    }
+    
+    return commentHTML;
+  }
+
   function renderComment(comment) {
     const commentAuthor = comment.author || {};
     const isCommentLiked = comment.likes?.some(like => like.userId === currentUser?.id) || false;
     const commentLikeCount = comment.likes?.length || 0;
     const commentId = comment.id;
     
+    // Use backdatedAt if available, otherwise createdAt
     const commentDisplayDate = comment.displayDate || comment.createdAt;
     const commentDate = new Date(commentDisplayDate).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -2814,8 +2942,11 @@
       minute: '2-digit'
     });
     
+    // FIXED: Comment authors should also get badges based on their membership and role
+    const commentAuthorWithBadges = renderAuthorWithBadge(commentAuthor);
+    
     // Check if comment author is management or celebrity for reply option
-    const isManagementOrCelebrity = commentAuthor.role === 'management' || commentAuthor.role === 'celebrity';
+    const isManagementOrCelebrity = commentAuthor.role === 'management' || commentAuthor.role === 'celebrity' || commentAuthor.role === 'admin';
     const replyOption = isManagementOrCelebrity ? `
       <button class="comment-reply-link" data-comment-id="${commentId}" data-comment-author="${commentAuthor.name}">
         <i class="fas fa-reply"></i> Reply
@@ -2829,7 +2960,7 @@
             <img src="${commentAuthor.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(commentAuthor.name) + '&background=7c3aed&color=fff'}" 
                  alt="${commentAuthor.name}" class="comment-author-img">
             <div class="comment-author-info">
-              <h5>${renderAuthorWithBadge(commentAuthor)}</h5>
+              <h5>${commentAuthorWithBadges}</h5>
               <div class="comment-time">${commentDate}</div>
             </div>
           </div>
@@ -3043,8 +3174,29 @@
           if (commentsList) {
             // Create new comment element
             const commentElement = document.createElement('div');
-            commentElement.innerHTML = renderComment(comment);
-            commentsList.insertBefore(commentElement.firstChild, commentsList.firstChild);
+            
+            if (replyToCommentId) {
+              // This is a reply - add to replies section
+              const repliesSection = document.getElementById(`replies-${replyToCommentId}`);
+              if (repliesSection) {
+                commentElement.innerHTML = renderComment(comment);
+                // Add to beginning of replies (newest first)
+                repliesSection.insertBefore(commentElement.firstChild, repliesSection.firstChild);
+                
+                // Update reply count
+                const replyToggle = document.querySelector(`.replies-toggle[data-comment-id="${replyToCommentId}"]`);
+                if (replyToggle) {
+                  const currentCount = parseInt(replyToggle.querySelector('.reply-count').textContent) || 0;
+                  replyToggle.querySelector('.reply-count').textContent = currentCount + 1;
+                  replyToggle.innerHTML = `<i class="fas fa-chevron-down"></i> View ${currentCount + 1} ${currentCount + 1 === 1 ? 'reply' : 'replies'} <span class="reply-count">${currentCount + 1}</span>`;
+                }
+              }
+            } else {
+              // This is a top-level comment
+              commentElement.innerHTML = renderComment(comment);
+              // Add to beginning of comments list (newest first)
+              commentsList.insertBefore(commentElement.firstChild, commentsList.firstChild);
+            }
             
             // Update comment count
             const commentsTitle = document.querySelector('.comments-title');
@@ -3087,6 +3239,23 @@
     // Add event listeners to all comments
     currentPost.comments?.forEach(comment => {
       addCommentEventListeners(comment.id);
+    });
+    
+    // Add event listeners for reply toggles
+    document.querySelectorAll('.replies-toggle').forEach(toggle => {
+      toggle.addEventListener('click', (e) => {
+        const commentId = e.target.closest('.replies-toggle').dataset.commentId;
+        const repliesSection = document.getElementById(`replies-${commentId}`);
+        if (repliesSection) {
+          repliesSection.classList.toggle('expanded');
+          const icon = toggle.querySelector('i');
+          if (repliesSection.classList.contains('expanded')) {
+            icon.className = 'fas fa-chevron-up';
+          } else {
+            icon.className = 'fas fa-chevron-down';
+          }
+        }
+      });
     });
     
     // Close dropdowns when clicking outside
@@ -3208,15 +3377,27 @@
     const postId = urlParams.get('post');
     
     if (!postId) {
-      // Check if we came from a direct link like /posts/9#comment-291
+      // Check if we came from a direct link like /post.html/9#comment-291
       const pathParts = window.location.pathname.split('/');
       const postIdFromPath = pathParts[pathParts.length - 1];
       
       if (postIdFromPath && postIdFromPath !== 'post.html') {
+        // Remove .html extension if present
+        const cleanPostId = postIdFromPath.replace('.html', '');
         // Redirect to proper URL format
-        window.location.href = `post.html?post=${postIdFromPath}${window.location.hash}`;
+        window.location.href = `post.html?post=${cleanPostId}${window.location.hash}`;
         return;
       }
+    }
+    
+    // Check for hash comment navigation
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#comment-')) {
+      // Ensure post is loaded before scrolling
+      setTimeout(() => {
+        const commentId = hash.replace('#comment-', '');
+        scrollToComment(commentId);
+      }, 1000);
     }
   }
 
@@ -3278,6 +3459,5 @@
 
   document.addEventListener('DOMContentLoaded', init);
 </script>
-
 </body>
 </html>
