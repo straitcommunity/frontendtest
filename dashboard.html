@@ -1,0 +1,3008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - GEORGESTRAIT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* =========================
+       CSS VARIABLES (THEMES)
+       ========================= */
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --card-bg: #f5f5f5;
+      --border-color: #e0e0e0;
+      --button-bg: #000000;
+      --button-text: #ffffff;
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --error-color: #dc2626;
+      --success-color: #16a34a;
+      --warning-color: #f59e0b;
+      --info-color: #0ea5e9;
+      --celebrity-color: #ffd700;
+      --premium-color: #10b981;
+      --gold-color: #fbbf24;
+      --diamond-color: #a5b4fc;
+      --sidebar-width: 250px;
+      --sidebar-collapsed: 70px;
+      --header-height: 70px;
+      --top-nav-height: 70px;
+      --modal-overlay: rgba(0, 0, 0, 0.7);
+      --shadow-light: rgba(0, 0, 0, 0.1);
+      --shadow-medium: rgba(0, 0, 0, 0.15);
+    }
+
+    .dark-theme {
+      --bg-color: #0f0f0f;
+      --text-color: #ffffff;
+      --card-bg: #1a1a1a;
+      --border-color: #2a2a2a;
+      --button-bg: #ffffff;
+      --button-text: #000000;
+      --primary-color: #3b82f6;
+      --primary-hover: #60a5fa;
+      --celebrity-color: #ffd700;
+      --premium-color: #10b981;
+      --gold-color: #fbbf24;
+      --diamond-color: #a5b4fc;
+      --modal-overlay: rgba(0, 0, 0, 0.8);
+      --shadow-light: rgba(255, 255, 255, 0.05);
+      --shadow-medium: rgba(255, 255, 255, 0.1);
+    }
+
+    /* =========================
+       GLOBAL STYLES
+       ========================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* =========================
+       CUSTOM ALERT
+       ========================= */
+    .custom-alert-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .custom-alert-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .custom-alert {
+      background-color: var(--bg-color);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+
+    .custom-alert-overlay.active .custom-alert {
+      transform: translateY(0);
+    }
+
+    .alert-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .alert-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .alert-icon.success {
+      background-color: rgba(22, 163, 74, 0.1);
+      color: var(--success-color);
+    }
+
+    .alert-icon.error {
+      background-color: rgba(220, 38, 38, 0.1);
+      color: var(--error-color);
+    }
+
+    .alert-icon.warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+    }
+
+    .alert-icon.info {
+      background-color: rgba(14, 165, 233, 0.1);
+      color: var(--info-color);
+    }
+
+    .alert-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .alert-body {
+      padding: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-color);
+    }
+
+    .alert-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      background-color: var(--card-bg);
+    }
+
+    .alert-btn {
+      padding: 0.625rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .alert-btn.cancel {
+      background-color: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .alert-btn.cancel:hover {
+      background-color: var(--border-color);
+    }
+
+    .alert-btn.confirm {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .alert-btn.confirm:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .alert-btn.ok {
+      background-color: var(--primary-color);
+      color: white;
+      min-width: 80px;
+    }
+
+    .alert-btn.ok:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* =========================
+       MODALS
+       ========================= */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--modal-overlay);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9998;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal {
+      background-color: var(--bg-color);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background-color: var(--border-color);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      background-color: var(--card-bg);
+    }
+
+    /* =========================
+       FORM STYLES
+       ========================= */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .text-muted {
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .dark-theme .text-muted {
+      color: #aaa;
+    }
+
+    /* =========================
+       BUTTON STYLES
+       ========================= */
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+    }
+
+    .btn-danger {
+      background-color: var(--error-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-xs {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      padding: 0;
+      font-weight: normal;
+    }
+
+    .btn-link:hover {
+      text-decoration: underline;
+      background: none;
+    }
+
+    /* =========================
+       POST CARD STYLES
+       ========================= */
+    .post-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .post-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--shadow-medium);
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .post-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .post-author-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .post-author-info h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .post-time {
+      font-size: 0.875rem;
+      color: #666;
+      margin-top: 0.25rem;
+    }
+
+    .dark-theme .post-time {
+      color: #aaa;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .post-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-color);
+    }
+
+    .post-content {
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      white-space: pre-line;
+      word-wrap: break-word;
+    }
+
+    /* =========================
+       POST IMAGES STYLES - COLLAGE LAYOUT
+       ========================= */
+    .post-images {
+      margin: 1rem 0;
+      display: grid;
+      gap: 0.5rem;
+      width: 100%;
+      max-height: 500px;
+      overflow: hidden;
+    }
+
+    .post-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .post-image:hover {
+      transform: scale(1.01);
+    }
+
+    /* Single image - full width */
+    .post-images:has(img:only-child) {
+      grid-template-columns: 1fr;
+    }
+    
+    .post-images:has(img:only-child) .post-image {
+      max-height: 500px;
+      object-fit: contain;
+    }
+
+    /* Two images - side by side */
+    .post-images:has(img:nth-child(2):last-child) {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 250px;
+    }
+
+    /* Three images - special collage */
+    .post-images:has(img:nth-child(3):last-child) {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 200px;
+    }
+    
+    .post-images:has(img:nth-child(3):last-child) img:first-child {
+      grid-column: span 2;
+      height: 300px;
+    }
+
+    /* Four images - 2x2 grid */
+    .post-images:has(img:nth-child(4):last-child) {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 200px;
+    }
+
+    /* Five images - 3x2 with first image taking 2 columns */
+    .post-images:has(img:nth-child(5):last-child) {
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-auto-rows: 150px;
+    }
+    
+    .post-images:has(img:nth-child(5):last-child) img:first-child {
+      grid-column: span 3;
+      height: 250px;
+    }
+
+    /* =========================
+       POST STATS - HORIZONTAL LAYOUT
+       ========================= */
+    .post-stats {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 0;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      margin: 1rem 0;
+    }
+
+    .post-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .post-stat:hover {
+      background-color: var(--border-color);
+    }
+
+    .post-stat i {
+      font-size: 1.2rem;
+      transition: transform 0.2s ease;
+    }
+
+    .post-stat.liked {
+      color: var(--error-color);
+    }
+
+    .post-stat.liked i {
+      color: var(--error-color);
+      animation: heartBeat 0.3s ease;
+    }
+
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    /* =========================
+       COMMENTS SECTION - COLLAPSIBLE
+       ========================= */
+    .comments-section {
+      margin-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 1rem;
+    }
+
+    .comments-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 0.75rem 0;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .comments-toggle:hover {
+      color: var(--primary-color);
+    }
+
+    .comments-toggle i {
+      transition: transform 0.3s ease;
+    }
+
+    .comments-toggle.collapsed i {
+      transform: rotate(-90deg);
+    }
+
+    .comments-container {
+      max-height: 500px;
+      overflow-y: auto;
+      transition: max-height 0.3s ease;
+    }
+
+    .comments-container.collapsed {
+      max-height: 0;
+      overflow: hidden;
+    }
+
+    .comments-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-color);
+    }
+
+    .comment-form {
+      margin-bottom: 1.5rem;
+    }
+
+    .reply-to-indicator {
+      background-color: rgba(37, 99, 235, 0.1);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      border-left: 3px solid var(--primary-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .comment-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .comment-card {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .comment-author {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .comment-author-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .comment-author-info h5 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .comment-time {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 0.125rem;
+    }
+
+    .comment-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .comment-content {
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+      word-wrap: break-word;
+    }
+
+    .reply-indicator {
+      font-size: 0.8rem;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* =========================
+       LOVE EMOJI BURST ANIMATION
+       ========================= */
+    @keyframes loveBurst {
+      0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5) rotate(180deg);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(2) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .love-burst {
+      position: absolute;
+      pointer-events: none;
+      font-size: 2rem;
+      animation: loveBurst 1s ease-out forwards;
+      z-index: 100;
+      user-select: none;
+    }
+
+    /* =========================
+       BADGES
+       ========================= */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-left: 0.25rem;
+    }
+
+    .badge-warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-info {
+      background-color: rgba(14, 165, 233, 0.1);
+      color: var(--info-color);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+
+    .badge-admin {
+      background-color: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    /* Verification badges */
+    .verification-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 4px;
+      font-size: 14px;
+      cursor: default;
+    }
+    
+    .blue-badge {
+      color: #1DA1F2;
+    }
+    
+    .golden-badge {
+      color: #FFD700;
+    }
+    
+    /* Profile badges */
+    .profile-badges {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+    }
+
+    /* =========================
+       HEADER - UPDATED FOR COIN BALANCE
+       ========================= */
+    header {
+      height: var(--header-height);
+      background-color: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-decoration: none;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      color: var(--primary-color);
+    }
+
+    .hamburger-menu {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .hamburger-menu:hover {
+      background-color: var(--card-bg);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* COIN BALANCE SECTION */
+    .coin-balance-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      background-color: var(--card-bg);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border-color);
+      height: 40px;
+    }
+
+    .coin-balance-container:hover {
+      background-color: var(--border-color);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .coin-icon {
+      color: #fbbf24;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+    }
+
+    .coin-amount {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-color);
+      white-space: nowrap;
+    }
+
+    .add-coin-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #10b981;
+      color: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      margin-left: 0.25rem;
+    }
+
+    .add-coin-btn:hover {
+      background-color: #0da271;
+      transform: scale(1.1);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-actions button {
+      padding: 0.4rem 0.8rem;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .header-actions button:hover {
+      opacity: 0.8;
+    }
+
+    /* =========================
+       MOBILE HORIZONTAL NAVIGATION BAR - MOBILE ONLY
+       ========================= */
+    .mobile-horizontal-nav {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      height: var(--top-nav-height);
+      background-color: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 99;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      display: none;
+    }
+
+    .mobile-horizontal-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-horizontal-icons {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 0.5rem;
+      height: 100%;
+      min-width: min-content;
+    }
+
+    .mobile-horizontal-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text-color);
+      transition: all 0.2s ease;
+      min-width: 60px;
+      padding: 0.5rem;
+      border-radius: 8px;
+      flex-shrink: 0;
+      height: 100%;
+      justify-content: center;
+    }
+
+    .mobile-horizontal-icon:hover {
+      background-color: var(--card-bg);
+      color: var(--primary-color);
+    }
+
+    .mobile-horizontal-icon.active {
+      color: var(--primary-color);
+      background-color: rgba(37, 99, 235, 0.1);
+    }
+
+    .mobile-horizontal-icon i {
+      font-size: 1.4rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .mobile-horizontal-icon span {
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* =========================
+       MAIN LAYOUT - ADJUSTED
+       ========================= */
+    .main-container {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    .mobile-horizontal-nav:not(.hidden) ~ .main-container {
+      margin-top: calc(var(--header-height) + var(--top-nav-height));
+      min-height: calc(100vh - var(--header-height) - var(--top-nav-height));
+    }
+
+    /* =========================
+       SIDEBAR - DESKTOP
+       ========================= */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      transition: width 0.3s ease;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mobile-horizontal-nav:not(.hidden) ~ .main-container .sidebar {
+      top: calc(var(--header-height) + var(--top-nav-height));
+      height: calc(100vh - var(--header-height) - var(--top-nav-height));
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed);
+    }
+
+    .sidebar-toggle {
+      display: flex;
+      justify-content: flex-end;
+      padding: 1rem;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.875rem 1.5rem;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background-color: var(--border-color);
+      color: var(--primary-color);
+    }
+
+    .nav-item i {
+      width: 24px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    .nav-text {
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed .nav-text {
+      opacity: 0;
+      width: 0;
+    }
+
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 0.875rem;
+    }
+
+    /* SIDEBAR PROFILE SECTION */
+    .sidebar-profile {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 80px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .profile-info {
+      flex: 1;
+      overflow: hidden;
+      transition: opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .sidebar.collapsed .profile-info {
+      opacity: 0;
+      width: 0;
+    }
+
+    .profile-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .profile-role {
+      font-size: 0.8rem;
+      color: #666;
+      background-color: var(--border-color);
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .dark-theme .profile-role {
+      color: #aaa;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .logout-btn:hover {
+      background-color: rgba(220, 38, 38, 0.1);
+    }
+
+    /* =========================
+       MOBILE SIDEBAR OVERLAY
+       ========================= */
+    .mobile-sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 95;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .mobile-sidebar-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      z-index: 96;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .mobile-sidebar.active {
+      transform: translateX(0);
+    }
+
+    /* MOBILE HEADER */
+    .mobile-sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      height: var(--header-height);
+    }
+
+    .mobile-sidebar-header .logo {
+      font-size: 1.2rem;
+    }
+
+    .mobile-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .mobile-theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mobile-theme-toggle:hover {
+      background-color: var(--border-color);
+    }
+
+    .mobile-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .mobile-close-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .mobile-sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-sidebar-profile {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    /* =========================
+       MAIN CONTENT
+       ========================= */
+    .main-content {
+      flex: 1;
+      padding: 1.5rem;
+      margin-left: var(--sidebar-width);
+      transition: margin-left 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar.collapsed ~ .main-content {
+      margin-left: var(--sidebar-collapsed);
+    }
+
+    /* =========================
+       PAGE HEADER
+       ========================= */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    /* =========================
+       LOADING SPINNER
+       ========================= */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #666;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      color: var(--border-color);
+      margin-bottom: 1rem;
+    }
+
+    /* =========================
+       RESPONSIVE STYLES
+       ========================= */
+    @media (max-width: 1024px) {
+      .hamburger-menu {
+        display: block;
+      }
+      
+      .sidebar {
+        display: none;
+      }
+      
+      .main-content {
+        margin-left: 0 !important;
+        padding: 1rem;
+      }
+      
+      /* Show mobile horizontal nav on tablet and mobile */
+      .mobile-horizontal-nav {
+        display: block;
+      }
+      
+      /* Hide theme toggle in header on mobile */
+      .header-actions {
+        display: none;
+      }
+      
+      /* Show theme toggle in mobile header */
+      .mobile-theme-toggle {
+        display: flex;
+      }
+      
+      /* Adjust mobile horizontal nav for tablet */
+      .mobile-horizontal-icons {
+        padding: 0 0.75rem;
+      }
+      
+      .mobile-horizontal-icon {
+        min-width: 65px;
+      }
+      
+      .mobile-horizontal-icon i {
+        font-size: 1.5rem;
+      }
+      
+      /* Adjust post images for tablet */
+      .post-images:has(img:nth-child(2):last-child),
+      .post-images:has(img:nth-child(3):last-child),
+      .post-images:has(img:nth-child(4):last-child),
+      .post-images:has(img:nth-child(5):last-child) {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+      }
+      
+      .post-images:has(img:nth-child(3):last-child) img:first-child,
+      .post-images:has(img:nth-child(5):last-child) img:first-child {
+        grid-column: span 1;
+        height: auto;
+      }
+      
+      /* Hide comments section on mobile */
+      .comments-section {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 0 0.75rem;
+      }
+      
+      /* Adjust mobile horizontal nav for mobile */
+      .mobile-horizontal-icons {
+        padding: 0 0.5rem;
+      }
+      
+      .mobile-horizontal-icon {
+        min-width: 55px;
+        padding: 0.4rem 0.25rem;
+      }
+      
+      .mobile-horizontal-icon i {
+        font-size: 1.3rem;
+      }
+      
+      .mobile-horizontal-icon span {
+        font-size: 0.7rem;
+      }
+      
+      /* Adjust coin balance for mobile */
+      .coin-balance-container {
+        padding: 0.3rem 0.6rem;
+        gap: 0.4rem;
+        height: 36px;
+      }
+      
+      .coin-icon {
+        font-size: 1.1rem;
+      }
+      
+      .coin-amount {
+        font-size: 0.85rem;
+      }
+      
+      .add-coin-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+      }
+      
+      .logo {
+        font-size: 1.2rem;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .page-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      
+      /* Adjust post stats for mobile */
+      .post-stats {
+        justify-content: space-around;
+      }
+      
+      /* Adjust post images for mobile */
+      .post-images {
+        max-height: 400px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .alert-btn, .modal-btn {
+        width: 100%;
+      }
+      
+      .mobile-horizontal-icon {
+        min-width: 50px;
+      }
+      
+      .mobile-horizontal-icon span {
+        font-size: 0.65rem;
+      }
+      
+      /* Adjust header for very small screens */
+      header {
+        padding: 0 0.5rem;
+      }
+      
+      .logo {
+        font-size: 1.1rem;
+      }
+      
+      .hamburger-menu {
+        font-size: 1.3rem;
+        padding: 0.4rem;
+      }
+      
+      /* Coin balance adjustments */
+      .coin-balance-container {
+        padding: 0.25rem 0.5rem;
+        gap: 0.3rem;
+      }
+      
+      .coin-amount {
+        font-size: 0.8rem;
+      }
+      
+      .add-coin-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      
+      /* Adjust mobile horizontal nav for very small screens */
+      .mobile-horizontal-icons {
+        padding: 0 0.25rem;
+      }
+      
+      .mobile-horizontal-icon {
+        min-width: 45px;
+        padding: 0.3rem 0.15rem;
+      }
+      
+      .mobile-horizontal-icon i {
+        font-size: 1.2rem;
+      }
+      
+      .post-card {
+        padding: 1rem;
+      }
+      
+      .post-title {
+        font-size: 1.1rem;
+      }
+      
+      /* Further adjust post images for small screens */
+      .post-images {
+        max-height: 350px;
+      }
+      
+      .post-images:has(img:nth-child(2):last-child),
+      .post-images:has(img:nth-child(3):last-child),
+      .post-images:has(img:nth-child(4):last-child),
+      .post-images:has(img:nth-child(5):last-child) {
+        grid-auto-rows: 150px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .mobile-horizontal-icons {
+        padding: 0 0.15rem;
+      }
+      
+      .mobile-horizontal-icon {
+        min-width: 40px;
+        padding: 0.25rem 0.1rem;
+      }
+      
+      .mobile-horizontal-icon i {
+        font-size: 1.1rem;
+        margin-bottom: 0.1rem;
+      }
+      
+      .mobile-horizontal-icon span {
+        font-size: 0.6rem;
+      }
+      
+      /* Hide coin balance text on very small screens */
+      .coin-amount {
+        display: none;
+      }
+      
+      .coin-balance-container {
+        padding: 0.5rem;
+        gap: 0.25rem;
+      }
+      
+      .coin-icon {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .sidebar {
+        padding-top: 0.5rem;
+      }
+      
+      .nav-item {
+        padding: 0.625rem 1rem;
+      }
+      
+      .mobile-horizontal-nav {
+        height: 60px;
+      }
+      
+      .mobile-horizontal-icon {
+        padding: 0.25rem 0.1rem;
+      }
+      
+      .mobile-horizontal-icon i {
+        font-size: 1.1rem;
+      }
+    }
+
+    /* Landscape mode adjustments */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .mobile-horizontal-nav {
+        height: 50px;
+      }
+      
+      .mobile-horizontal-icon {
+        min-width: 45px;
+        padding: 0.2rem 0.1rem;
+      }
+      
+      .mobile-horizontal-icon i {
+        font-size: 1rem;
+        margin-bottom: 0.1rem;
+      }
+      
+      .mobile-horizontal-icon span {
+        font-size: 0.6rem;
+      }
+    }
+
+    /* Desktop specific - Hide mobile horizontal nav */
+    @media (min-width: 1025px) {
+      .mobile-horizontal-nav {
+        display: none !important;
+      }
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--card-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Utility classes */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 1rem; }
+    .mt-4 { margin-top: 1.5rem; }
+    .mt-5 { margin-top: 2rem; }
+
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 1rem; }
+    .mb-4 { margin-bottom: 1.5rem; }
+    .mb-5 { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <!-- Custom Alert -->
+  <div class="custom-alert-overlay" id="custom-alert-overlay">
+    <div class="custom-alert" id="custom-alert">
+      <div class="alert-header">
+        <div class="alert-icon" id="alert-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <h3 class="alert-title" id="alert-title">Alert</h3>
+      </div>
+      <div class="alert-body" id="alert-body">
+        This is a custom alert message.
+      </div>
+      <div class="alert-footer" id="alert-footer">
+        <button class="alert-btn ok" id="alert-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div class="mobile-sidebar-overlay" id="mobile-sidebar-overlay"></div>
+
+  <!-- Mobile Sidebar -->
+  <div class="mobile-sidebar" id="mobile-sidebar">
+    <div class="mobile-sidebar-header">
+      <a href="#" class="logo">
+        <i class="fas fa-guitar logo-icon"></i>
+        GEORGESTRAIT
+      </a>
+      <div class="mobile-header-actions">
+        <button class="mobile-theme-toggle" id="mobile-theme-toggle">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="mobile-close-btn" id="mobile-close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    
+    <nav class="mobile-sidebar-nav" id="mobile-nav">
+      <!-- Navigation items will be loaded here -->
+    </nav>
+    
+    <div class="mobile-sidebar-profile" id="mobile-profile-section">
+      <!-- Profile will be loaded here -->
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <button class="hamburger-menu" id="hamburger-menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a href="#" class="logo">
+        <i class="fas fa-guitar logo-icon"></i>
+        GEORGESTRAIT
+      </a>
+    </div>
+    
+    <div class="header-right">
+      <!-- Coin Balance Feature -->
+      <div class="coin-balance-container" id="coin-balance-container">
+        <div class="coin-icon">
+          <i class="fas fa-coins"></i>
+        </div>
+        <div class="coin-amount" id="coin-amount">0.00</div>
+        <button class="add-coin-btn" id="add-coin-btn">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      
+      <div class="header-actions">
+        <button id="theme-toggle">
+          <i class="fas fa-moon"></i> Theme
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Horizontal Navigation - Mobile only -->
+  <div class="mobile-horizontal-nav hidden" id="mobile-horizontal-nav">
+    <div class="mobile-horizontal-icons" id="mobile-horizontal-icons">
+      <!-- Mobile horizontal navigation icons will be dynamically added here -->
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Desktop Sidebar (Hidden on mobile) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-toggle">
+        <button class="toggle-btn" id="sidebar-toggle">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- Navigation items will be loaded here -->
+      </nav>
+      
+      <div class="sidebar-profile" id="profile-section">
+        <!-- Profile will be loaded here -->
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title" id="page-title">Dashboard</h1>
+        <div class="page-actions" id="page-actions">
+          <!-- Create Post Button Removed as Requested -->
+        </div>
+      </div>
+
+      <!-- Posts Container -->
+      <div id="posts-container">
+        <div class="text-center mt-5">
+          <div class="spinner"></div>
+          <p class="mt-2">Loading posts...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+  // =========================
+  // API BASE URL
+  // =========================
+  const API_BASE_URL = 'http://localhost:5000/api';
+  let currentUser = null;
+  let isOnDashboardPage = true;
+  let coinBalance = 0;
+  let currentPosts = [];
+  let selectedImages = [];
+  let replyToCommentId = null;
+  let replyToCommentAuthor = null;
+
+  // =========================
+  // DOM ELEMENTS
+  // =========================
+  // Theme
+  const themeToggle = document.getElementById('theme-toggle');
+  const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
+  
+  // Sidebar & Navigation
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const hamburgerMenu = document.getElementById('hamburger-menu');
+  const mobileSidebar = document.getElementById('mobile-sidebar');
+  const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
+  const mobileCloseBtn = document.getElementById('mobile-close-btn');
+  const sidebarNav = document.getElementById('sidebar-nav');
+  const mobileNav = document.getElementById('mobile-nav');
+  const profileSection = document.getElementById('profile-section');
+  const mobileProfileSection = document.getElementById('mobile-profile-section');
+  
+  // Mobile Horizontal Navigation
+  const mobileHorizontalNav = document.getElementById('mobile-horizontal-nav');
+  const mobileHorizontalIcons = document.getElementById('mobile-horizontal-icons');
+  
+  // Coin Balance
+  const coinBalanceContainer = document.getElementById('coin-balance-container');
+  const addCoinBtn = document.getElementById('add-coin-btn');
+  const coinAmount = document.getElementById('coin-amount');
+  
+  // Content Area
+  const pageTitle = document.getElementById('page-title');
+  const pageActions = document.getElementById('page-actions');
+  const postsContainer = document.getElementById('posts-container');
+  
+  // Custom Alert
+  const customAlertOverlay = document.getElementById('custom-alert-overlay');
+  const customAlert = document.getElementById('custom-alert');
+  const alertIcon = document.getElementById('alert-icon');
+  const alertTitle = document.getElementById('alert-title');
+  const alertBody = document.getElementById('alert-body');
+  const alertFooter = document.getElementById('alert-footer');
+
+  // =========================
+  // NAVIGATION CONFIG
+  // =========================
+  const navItems = [
+    { id: 'dashboard', icon: 'fas fa-home', text: 'Home', href: 'dashboard.html', active: true },
+    { id: 'post', icon: 'fas fa-newspaper', text: 'Post', href: 'post.html' },
+    { id: 'live', icon: 'fas fa-video', text: 'Live', href: 'live.html' },
+    { id: 'message', icon: 'fas fa-comments', text: 'Message', href: 'message.html' },
+    { id: 'notification', icon: 'fas fa-bell', text: 'Notification', href: 'notification.html' },
+    { id: 'ticket', icon: 'fas fa-ticket-alt', text: 'Ticket', href: 'ticket.html' },
+    { id: 'store', icon: 'fas fa-store', text: 'Store', href: 'store.html' },
+    { id: 'payment', icon: 'fas fa-credit-card', text: 'Payment', href: 'payment.html' },
+    { id: 'profile', icon: 'fas fa-user-circle', text: 'Profile', href: 'profile.html' }
+  ];
+
+  // Mobile horizontal navigation icons (for dashboard page only - mobile)
+  const mobileHorizontalItems = [
+    { id: 'dashboard', icon: 'fas fa-home', text: 'Home', href: 'dashboard.html', active: true },
+    { id: 'post', icon: 'fas fa-newspaper', text: 'Post', href: 'post.html' },
+    { id: 'live', icon: 'fas fa-video', text: 'Live', href: 'live.html' },
+    { id: 'message', icon: 'fas fa-comments', text: 'Message', href: 'message.html' },
+    { id: 'notification', icon: 'fas fa-bell', text: 'Notif', href: 'notification.html' }
+  ];
+
+  // =========================
+  // CUSTOM ALERT SYSTEM
+  // =========================
+  function showAlert(title, message, type = 'info', options = {}) {
+    const icons = {
+      success: { icon: 'fa-check-circle', color: 'success' },
+      error: { icon: 'fa-exclamation-circle', color: 'error' },
+      warning: { icon: 'fa-exclamation-triangle', color: 'warning' },
+      info: { icon: 'fa-info-circle', color: 'info' }
+    };
+    
+    const selectedType = icons[type] || icons.info;
+    
+    alertIcon.innerHTML = `<i class="fas ${selectedType.icon}"></i>`;
+    alertIcon.className = `alert-icon ${selectedType.color}`;
+    
+    alertTitle.textContent = title;
+    alertBody.textContent = message;
+    
+    alertFooter.innerHTML = '';
+    
+    if (options.showCancel) {
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'alert-btn cancel';
+      cancelBtn.textContent = options.cancelText || 'Cancel';
+      cancelBtn.onclick = () => {
+        hideAlert();
+        if (options.onCancel) options.onCancel();
+      };
+      
+      const confirmBtn = document.createElement('button');
+      confirmBtn.className = 'alert-btn confirm';
+      confirmBtn.textContent = options.confirmText || 'Confirm';
+      confirmBtn.onclick = () => {
+        hideAlert();
+        if (options.onConfirm) options.onConfirm();
+      };
+      
+      alertFooter.appendChild(cancelBtn);
+      alertFooter.appendChild(confirmBtn);
+    } else {
+      const okBtn = document.createElement('button');
+      okBtn.className = 'alert-btn ok';
+      okBtn.textContent = options.okText || 'OK';
+      okBtn.onclick = () => {
+        hideAlert();
+        if (options.onConfirm) options.onConfirm();
+      };
+      alertFooter.appendChild(okBtn);
+    }
+    
+    customAlertOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function hideAlert() {
+    customAlertOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+  
+  customAlertOverlay.addEventListener('click', (e) => {
+    if (e.target === customAlertOverlay && !customAlert.contains(e.target)) {
+      hideAlert();
+    }
+  });
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && customAlertOverlay.classList.contains('active')) {
+      hideAlert();
+    }
+  });
+
+  // =========================
+  // MODAL FUNCTIONS
+  // =========================
+  function openModal(modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+  // =========================
+  // THEME TOGGLE FUNCTIONS
+  // =========================
+  function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    updateThemeIcons();
+    
+    if (document.body.classList.contains('dark-theme')) {
+      localStorage.setItem('theme', 'dark');
+    } else {
+      localStorage.setItem('theme', 'light');
+    }
+  }
+  
+  function updateThemeIcons() {
+    const isDark = document.body.classList.contains('dark-theme');
+    const sunIcon = '<i class="fas fa-sun"></i>';
+    const moonIcon = '<i class="fas fa-moon"></i>';
+    
+    // Update desktop theme toggle
+    themeToggle.innerHTML = isDark ? `${sunIcon} Light Mode` : `${moonIcon} Theme`;
+    
+    // Update mobile theme toggle
+    mobileThemeToggle.innerHTML = isDark ? sunIcon : moonIcon;
+  }
+
+  // Theme toggle event listeners
+  themeToggle.addEventListener('click', toggleTheme);
+  mobileThemeToggle.addEventListener('click', toggleTheme);
+
+  // =========================
+  // SIDEBAR TOGGLE
+  // =========================
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    const icon = sidebarToggle.querySelector('i');
+    if (sidebar.classList.contains('collapsed')) {
+      icon.className = 'fas fa-chevron-right';
+    } else {
+      icon.className = 'fas fa-chevron-left';
+    }
+  });
+
+  // Mobile sidebar toggle
+  hamburgerMenu.addEventListener('click', () => {
+    mobileSidebar.classList.add('active');
+    mobileSidebarOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+
+  mobileCloseBtn.addEventListener('click', () => {
+    mobileSidebar.classList.remove('active');
+    mobileSidebarOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  });
+
+  mobileSidebarOverlay.addEventListener('click', () => {
+    mobileSidebar.classList.remove('active');
+    mobileSidebarOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  });
+
+  // =========================
+  // COIN BALANCE FUNCTIONS
+  // =========================
+  function formatCoinBalance(balance) {
+    return parseFloat(balance).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function updateCoinBalanceUI() {
+    coinAmount.textContent = formatCoinBalance(coinBalance);
+  }
+
+  function handleCoinBalanceClick() {
+    window.location.href = 'payment.html';
+  }
+
+  // =========================
+  // VERIFICATION BADGE FUNCTIONS
+  // =========================
+  function getVerificationBadge(user) {
+    if (!user) return '';
+    
+    let badge = '';
+    
+    // Add blue verification badge for premium membership
+    if (user.membership === 'premium' || user.isPremium === true || user.role === 'premium') {
+      badge += '<i class="fas fa-check-circle blue-badge verification-badge" title="Premium Member"></i>';
+    }
+    
+    // Add golden crown for management or celebrity roles
+    if (user.role === 'management' || user.role === 'celebrity' || user.isCelebrity === true) {
+      badge += '<i class="fas fa-crown golden-badge verification-badge" title="Verified Account"></i>';
+    }
+    
+    return badge;
+  }
+
+  function renderAuthorWithBadge(author) {
+    if (!author) return 'Unknown';
+    
+    const badge = getVerificationBadge(author);
+    return `${author.name} ${badge}`;
+  }
+
+  // =========================
+  // NAVIGATION RENDERING
+  // =========================
+  function renderNavigation() {
+    // Clear existing nav
+    sidebarNav.innerHTML = '';
+    mobileNav.innerHTML = '';
+    
+    navItems.forEach(item => {
+      // Desktop sidebar item
+      const desktopItem = document.createElement('a');
+      desktopItem.href = item.href;
+      desktopItem.className = `nav-item ${item.active ? 'active' : ''}`;
+      desktopItem.dataset.page = item.id;
+      desktopItem.innerHTML = `
+        <i class="${item.icon}"></i>
+        <span class="nav-text">${item.text}</span>
+      `;
+      
+      // Add click event for navigation
+      desktopItem.addEventListener('click', (e) => {
+        // Allow default navigation to respective HTML pages
+      });
+      
+      sidebarNav.appendChild(desktopItem);
+      
+      // Mobile sidebar item
+      const mobileItem = document.createElement('a');
+      mobileItem.href = item.href;
+      mobileItem.className = `nav-item mobile-nav-item ${item.active ? 'active' : ''}`;
+      mobileItem.dataset.page = item.id;
+      mobileItem.innerHTML = `
+        <i class="${item.icon}"></i>
+        <span class="nav-text">${item.text}</span>
+      `;
+      
+      // Add click event for mobile navigation
+      mobileItem.addEventListener('click', (e) => {
+        // Close mobile sidebar when navigating
+        mobileSidebar.classList.remove('active');
+        mobileSidebarOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      });
+      
+      mobileNav.appendChild(mobileItem);
+    });
+  }
+
+  // =========================
+  // MOBILE HORIZONTAL NAVIGATION RENDERING (Mobile only)
+  // =========================
+  function renderMobileHorizontalNavigation() {
+    // Clear existing mobile horizontal icons
+    mobileHorizontalIcons.innerHTML = '';
+    
+    mobileHorizontalItems.forEach(item => {
+      const mobileHorizontalIcon = document.createElement('a');
+      mobileHorizontalIcon.href = item.href;
+      mobileHorizontalIcon.className = `mobile-horizontal-icon ${item.active ? 'active' : ''}`;
+      mobileHorizontalIcon.dataset.page = item.id;
+      mobileHorizontalIcon.innerHTML = `
+        <i class="${item.icon}"></i>
+        <span>${item.text}</span>
+      `;
+      
+      mobileHorizontalIcons.appendChild(mobileHorizontalIcon);
+    });
+  }
+
+  // Show mobile horizontal navigation bar
+  function showMobileHorizontalNavBar() {
+    mobileHorizontalNav.classList.remove('hidden');
+    isOnDashboardPage = true;
+  }
+
+  // =========================
+  // LOGOUT HANDLER
+  // =========================
+  async function handleLogout() {
+    showAlert(
+      'Logout',
+      'Are you sure you want to logout?',
+      'warning',
+      {
+        showCancel: true,
+        cancelText: 'Cancel',
+        confirmText: 'Logout',
+        onConfirm: async () => {
+          try {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+              await fetch(`${API_BASE_URL}/auth/logout`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+            }
+          } catch (error) {
+            console.error('Logout API error:', error);
+          } finally {
+            localStorage.clear();
+            window.location.href = 'login.html';
+          }
+        }
+      }
+    );
+  }
+
+  // =========================
+  // PROFILE RENDERING
+  // =========================
+  function renderProfile() {
+    if (!currentUser) return;
+    
+    // Get first letter of name for avatar
+    const firstLetter = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+    
+    // Get location info for role display
+    const locationInfo = currentUser.state && currentUser.country 
+      ? `${currentUser.state}, ${currentUser.country}`
+      : (currentUser.country || 'Earth');
+    
+    // Get user badges
+    const userBadges = getVerificationBadge(currentUser);
+    
+    // Desktop sidebar profile
+    const desktopProfileHTML = `
+      <div class="profile-pic" style="background-color: ${stringToColor(currentUser.name)};">
+        ${currentUser.profilePicture 
+          ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}" style="width: 100%; height: 100%; border-radius: 50%;">` 
+          : firstLetter}
+      </div>
+      <div class="profile-info">
+        <div class="profile-name">
+          ${currentUser.name}
+          <div class="profile-badges">${userBadges}</div>
+        </div>
+        <div class="profile-role">${locationInfo}</div>
+      </div>
+      <button class="logout-btn" id="logout-btn-desktop" title="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    `;
+    
+    // Mobile sidebar profile
+    const mobileProfileHTML = `
+      <div class="sidebar-profile">
+        <div class="profile-pic" style="background-color: ${stringToColor(currentUser.name)};">
+          ${currentUser.profilePicture 
+            ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}" style="width: 100%; height: 100%; border-radius: 50%;">` 
+            : firstLetter}
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">
+            ${currentUser.name}
+            <div class="profile-badges">${userBadges}</div>
+          </div>
+          <div class="profile-role">${locationInfo}</div>
+        </div>
+        <button class="logout-btn" id="logout-btn-mobile" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    `;
+    
+    profileSection.innerHTML = desktopProfileHTML;
+    mobileProfileSection.innerHTML = mobileProfileHTML;
+    
+    // Add logout event listeners
+    const desktopLogoutBtn = document.getElementById('logout-btn-desktop');
+    const mobileLogoutBtn = document.getElementById('logout-btn-mobile');
+    
+    if (desktopLogoutBtn) {
+      desktopLogoutBtn.addEventListener('click', handleLogout);
+    }
+    
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', handleLogout);
+    }
+  }
+
+  // Helper function to generate consistent color from string
+  function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xFF;
+      color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+  }
+
+  // =========================
+  // API FUNCTIONS
+  // =========================
+  async function fetchWithAuth(url, options = {}) {
+    const token = localStorage.getItem('accessToken');
+    
+    const headers = {
+      ...options.headers
+    };
+    
+    // Don't set Content-Type for FormData
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(url, {
+      ...options,
+      headers
+    });
+    
+    // Handle token expiration
+    if (response.status === 401) {
+      try {
+        const newToken = await refreshToken();
+        if (newToken) {
+          headers['Authorization'] = `Bearer ${newToken}`;
+          const retryResponse = await fetch(url, {
+            ...options,
+            headers
+          });
+          return retryResponse;
+        }
+      } catch (error) {
+        // Refresh failed, redirect to login
+        showAlert('Session Expired', 'Your session has expired. Please login again.', 'error', {
+          onConfirm: () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+          }
+        });
+        throw new Error('Authentication failed');
+      }
+    }
+    
+    return response;
+  }
+
+  async function refreshToken() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) return null;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.accessToken);
+        return data.accessToken;
+      }
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+    }
+    
+    return null;
+  }
+
+  // =========================
+  // FETCH COIN BALANCE
+  // =========================
+  async function fetchCoinBalance() {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/auth/coin-balance`);
+      if (response.ok) {
+        const data = await response.json();
+        coinBalance = data.coinBalance || 0;
+        updateCoinBalanceUI();
+      } else {
+        console.error('Failed to fetch coin balance:', response.status);
+      }
+    } catch (error) {
+      console.error('Coin balance fetch error:', error);
+    }
+  }
+
+  // =========================
+  // AUTH/ME API CALL
+  // =========================
+  async function getCurrentUserProfile() {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.user;
+      } else if (response.status === 401 || response.status === 403) {
+        return null;
+      }
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      return null;
+    }
+    return null;
+  }
+
+  // =========================
+  // LIKE FUNCTIONS
+  // =========================
+  async function togglePostLike(postId, isLiked) {
+    try {
+      const url = `${API_BASE_URL}/likes/post`;
+      const method = isLiked ? 'DELETE' : 'POST';
+      
+      const response = await fetchWithAuth(url, {
+        method: method,
+        body: JSON.stringify({ postId })
+      });
+      
+      if (response.ok) {
+        return await response.json();
+      } else if (response.status === 400 || response.status === 200) {
+        return { message: 'Already processed' };
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to toggle like');
+      }
+    } catch (error) {
+      console.error('Toggle post like error:', error);
+      showAlert('Error', error.message || 'Failed to toggle like', 'error');
+      throw error;
+    }
+  }
+
+  async function toggleCommentLike(commentId, isLiked) {
+    try {
+      const url = `${API_BASE_URL}/likes/comment`;
+      const method = isLiked ? 'DELETE' : 'POST';
+      
+      const response = await fetchWithAuth(url, {
+        method: method,
+        body: JSON.stringify({ commentId })
+      });
+      
+      if (response.ok) {
+        return await response.json();
+      } else if (response.status === 400) {
+        return { message: 'Already processed' };
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to toggle like');
+      }
+    } catch (error) {
+      console.error('Toggle comment like error:', error);
+      showAlert('Error', error.message || 'Failed to toggle like', 'error');
+      throw error;
+    }
+  }
+
+  // =========================
+  // LOVE EMOJI BURST ANIMATION
+  // =========================
+  function createLoveBurst(x, y) {
+    const loveBurst = document.createElement('div');
+    loveBurst.className = 'love-burst';
+    loveBurst.innerHTML = '❤️';
+    loveBurst.style.left = `${x}px`;
+    loveBurst.style.top = `${y}px`;
+    document.body.appendChild(loveBurst);
+    
+    // Remove after animation completes
+    setTimeout(() => {
+      loveBurst.remove();
+    }, 1000);
+  }
+
+  // =========================
+  // POST FUNCTIONS
+  // =========================
+  async function loadPosts() {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/posts`);
+      if (response.ok) {
+        const data = await response.json();
+        currentPosts = data.posts || [];
+        
+        // Load comments for each post
+        await loadCommentsForAllPosts();
+        
+        renderPosts();
+      } else {
+        showAlert('Error', 'Failed to load posts', 'error');
+      }
+    } catch (error) {
+      console.error('Load posts error:', error);
+      showAlert('Error', 'Failed to load posts', 'error');
+    }
+  }
+
+  async function loadCommentsForAllPosts() {
+    for (const post of currentPosts) {
+      try {
+        const response = await fetchWithAuth(`${API_BASE_URL}/comments/post/${post.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          post.comments = data.comments || [];
+        }
+      } catch (error) {
+        console.error(`Failed to load comments for post ${post.id}:`, error);
+        if (!post.comments) post.comments = [];
+      }
+    }
+  }
+
+  function renderPosts() {
+    if (currentPosts.length === 0) {
+      postsContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <i class="fas fa-newspaper"></i>
+          </div>
+          <h3>No Posts Yet</h3>
+          <p>Be the first to create a post!</p>
+        </div>
+      `;
+      return;
+    }
+
+    postsContainer.innerHTML = '';
+    
+    currentPosts.forEach(post => {
+      const postElement = document.createElement('div');
+      postElement.className = 'post-card';
+      postElement.dataset.postId = post.id;
+      
+      const author = post.author || {};
+      const likeCount = post.likeCount || post.likes?.length || 0;
+      const isLikedByCurrentUser = post.likes?.some(like => like.userId === currentUser?.id) || false;
+      const commentCount = post.comments?.length || 0;
+      
+      // Use displayDate which is already set in backend
+      const displayDate = post.displayDate || post.createdAt;
+      const formattedDate = new Date(displayDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      // Handle images array - COLLAGE LAYOUT
+      let imagesHTML = '';
+      if (post.images && post.images.length > 0) {
+        imagesHTML = `<div class="post-images">`;
+        
+        post.images.forEach((image, index) => {
+          imagesHTML += `
+            <img src="${image}" alt="Post image ${index + 1}" class="post-image" loading="lazy" onerror="this.style.display='none'">
+          `;
+        });
+        
+        imagesHTML += `</div>`;
+      }
+      
+      // Comments section - collapsible on desktop, hidden on mobile
+      const isMobile = window.innerWidth <= 1024;
+      let commentsHTML = '';
+      
+      if (!isMobile && post.comments && post.comments.length > 0) {
+        commentsHTML = `
+          <div class="comments-section">
+            <button class="comments-toggle collapsed" data-post-id="${post.id}">
+              <span>Comments (${post.comments.length})</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="comments-container collapsed" id="comments-container-${post.id}">
+              <div class="comment-list" id="comments-${post.id}">
+                ${post.comments.slice(0, 3).map(comment => renderComment(comment)).join('')}
+                ${post.comments.length > 3 ? `
+                  <div class="text-center mt-2">
+                    <button class="btn btn-link view-all-comments-btn" data-post-id="${post.id}">
+                      View all ${post.comments.length} comments
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      
+      postElement.innerHTML = `
+        <div class="post-header">
+          <div class="post-author">
+            <img src="${author.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7c3aed&color=fff'}" 
+                 alt="${author.name}" class="post-author-img">
+            <div class="post-author-info">
+              <h4>${renderAuthorWithBadge(author)}</h4>
+              <div class="post-time">${formattedDate}</div>
+            </div>
+          </div>
+          <div class="post-actions">
+            ${(post.authorId === currentUser?.id) ? `
+              <button class="btn btn-sm btn-danger delete-post-btn" data-post-id="${post.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+        
+        <h3 class="post-title">${post.title}</h3>
+        <div class="post-content">${post.content || ''}</div>
+        
+        ${imagesHTML}
+        
+        <!-- HORIZONTAL LIKE AND COMMENT STATS -->
+        <div class="post-stats">
+          <button class="post-stat like-post-btn ${isLikedByCurrentUser ? 'liked' : ''}" data-post-id="${post.id}">
+            <i class="fas fa-heart"></i>
+            <span class="like-count">${likeCount} likes</span>
+          </button>
+          <button class="post-stat comment-post-btn" data-post-id="${post.id}">
+            <i class="fas fa-comment"></i>
+            <span class="comment-count">${commentCount} comments</span>
+          </button>
+        </div>
+        
+        ${commentsHTML}
+      `;
+      
+      postsContainer.appendChild(postElement);
+    });
+    
+    // Add event listeners after rendering
+    addPostEventListenersAfterRender();
+  }
+
+  function renderComment(comment) {
+    const commentAuthor = comment.author || {};
+    const isCommentLiked = comment.likes?.some(like => like.userId === currentUser?.id) || false;
+    const commentLikeCount = comment.likes?.length || 0;
+    
+    const commentDisplayDate = comment.displayDate || comment.createdAt;
+    const commentDate = new Date(commentDisplayDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    return `
+      <div class="comment-card" data-comment-id="${comment.id}">
+        <div class="comment-header">
+          <div class="comment-author">
+            <img src="${commentAuthor.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(commentAuthor.name) + '&background=7c3aed&color=fff'}" 
+                 alt="${commentAuthor.name}" class="comment-author-img">
+            <div class="comment-author-info">
+              <h5>${renderAuthorWithBadge(commentAuthor)}</h5>
+              <div class="comment-time">${commentDate}</div>
+            </div>
+          </div>
+          <div class="comment-actions">
+            <button class="btn btn-sm btn-link like-comment-btn ${isCommentLiked ? 'liked' : ''}" data-comment-id="${comment.id}">
+              <i class="fas fa-heart"></i>
+              <span class="comment-like-count">${commentLikeCount}</span>
+            </button>
+            ${(comment.authorId === currentUser?.id) ? `
+              <button class="btn btn-sm btn-danger delete-comment-btn" data-comment-id="${comment.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+        <div class="comment-content">${comment.content}</div>
+      </div>
+    `;
+  }
+
+  // =========================
+  // EVENT LISTENERS FOR DYNAMIC ELEMENTS
+  // =========================
+  function addPostEventListenersAfterRender() {
+    // View all comments button
+    document.querySelectorAll('.view-all-comments-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        window.location.href = `post.html?post=${postId}`;
+      });
+    });
+    
+    // Comment button redirect
+    document.querySelectorAll('.comment-post-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        window.location.href = `post.html?post=${postId}`;
+      });
+    });
+    
+    // Comments toggle button
+    document.querySelectorAll('.comments-toggle').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        const commentsContainer = document.getElementById(`comments-container-${postId}`);
+        
+        if (commentsContainer) {
+          commentsContainer.classList.toggle('collapsed');
+          this.classList.toggle('collapsed');
+          
+          const icon = this.querySelector('i');
+          if (commentsContainer.classList.contains('collapsed')) {
+            icon.style.transform = 'rotate(-90deg)';
+          } else {
+            icon.style.transform = 'rotate(0deg)';
+          }
+        }
+      });
+    });
+  }
+
+  // =========================
+  // REPLY FUNCTIONS
+  // =========================
+  function cancelReply(postId) {
+    replyToCommentId = null;
+    replyToCommentAuthor = null;
+    
+    const textarea = document.getElementById(`comment-input-${postId}`);
+    if (textarea) {
+      textarea.placeholder = 'Add a comment...';
+    }
+    
+    const indicator = document.getElementById(`reply-to-indicator-${postId}`);
+    if (indicator) {
+      indicator.remove();
+    }
+    
+    const submitBtn = document.querySelector(`.submit-comment-btn[data-post-id="${postId}"]`);
+    if (submitBtn) {
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Post Comment';
+    }
+  }
+
+  async function deletePost(postId) {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/posts/${postId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        showAlert('Success', 'Post deleted successfully', 'success', {
+          onConfirm: () => {
+            loadPosts();
+          }
+        });
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete post');
+      }
+    } catch (error) {
+      console.error('Delete post error:', error);
+      showAlert('Error', error.message || 'Failed to delete post', 'error');
+    }
+  }
+
+  async function deleteComment(commentId) {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/comments/${commentId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        showAlert('Success', 'Comment deleted successfully', 'success', {
+          onConfirm: () => {
+            loadPosts();
+          }
+        });
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete comment');
+      }
+    } catch (error) {
+      console.error('Delete comment error:', error);
+      showAlert('Error', error.message || 'Failed to delete comment', 'error');
+    }
+  }
+
+  // =========================
+  // EVENT LISTENERS
+  // =========================
+  function addPostEventListeners() {
+    // Posts container event delegation
+    postsContainer.addEventListener('click', async (e) => {
+      const target = e.target;
+      
+      // Delete post
+      if (target.closest('.delete-post-btn')) {
+        const btn = target.closest('.delete-post-btn');
+        const postId = btn.dataset.postId;
+        
+        showAlert(
+          'Delete Post',
+          'Are you sure you want to delete this post? This action cannot be undone.',
+          'warning',
+          {
+            showCancel: true,
+            cancelText: 'Cancel',
+            confirmText: 'Delete',
+            onConfirm: () => {
+              deletePost(postId);
+            }
+          }
+        );
+      }
+      
+      // Like post with love burst animation
+      if (target.closest('.like-post-btn')) {
+        const btn = target.closest('.like-post-btn');
+        const postId = btn.dataset.postId;
+        const isLiked = btn.classList.contains('liked');
+        
+        // Get button position for animation
+        const rect = btn.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        
+        // Create multiple love burst animations for better effect
+        if (!isLiked) {
+          // Create 5 love emojis in different positions
+          for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+              const offsetX = (Math.random() - 0.5) * 50;
+              const offsetY = (Math.random() - 0.5) * 50;
+              createLoveBurst(x + offsetX, y + offsetY);
+            }, i * 100);
+          }
+        }
+        
+        btn.disabled = true;
+        const likeText = btn.querySelector('.like-count');
+        const currentCount = parseInt(likeText.textContent) || 0;
+        
+        try {
+          await togglePostLike(postId, isLiked);
+          
+          // Update UI
+          if (isLiked) {
+            btn.classList.remove('liked');
+            likeText.textContent = `${Math.max(0, currentCount - 1)} likes`;
+          } else {
+            btn.classList.add('liked');
+            likeText.textContent = `${currentCount + 1} likes`;
+          }
+        } catch (error) {
+          // Error already shown in togglePostLike
+        } finally {
+          btn.disabled = false;
+        }
+      }
+      
+      // Delete comment
+      if (target.closest('.delete-comment-btn')) {
+        const btn = target.closest('.delete-comment-btn');
+        const commentId = btn.dataset.commentId;
+        
+        showAlert(
+          'Delete Comment',
+          'Are you sure you want to delete this comment?',
+          'warning',
+          {
+            showCancel: true,
+            cancelText: 'Cancel',
+            confirmText: 'Delete',
+            onConfirm: () => {
+              deleteComment(commentId);
+            }
+          }
+        );
+      }
+      
+      // Like comment
+      if (target.closest('.like-comment-btn')) {
+        const btn = target.closest('.like-comment-btn');
+        const commentId = btn.dataset.commentId;
+        const isLiked = btn.classList.contains('liked');
+        
+        btn.disabled = true;
+        const likeCountSpan = btn.querySelector('.comment-like-count');
+        const currentCount = parseInt(likeCountSpan.textContent) || 0;
+        
+        try {
+          await toggleCommentLike(commentId, isLiked);
+          
+          // Update UI
+          if (isLiked) {
+            btn.classList.remove('liked');
+            likeCountSpan.textContent = Math.max(0, currentCount - 1);
+          } else {
+            btn.classList.add('liked');
+            likeCountSpan.textContent = currentCount + 1;
+          }
+        } catch (error) {
+          // Error already shown in toggleCommentLike
+        } finally {
+          btn.disabled = false;
+        }
+      }
+    });
+  }
+
+  // =========================
+  // INITIALIZATION
+  // =========================
+  async function init() {
+    // Check authentication
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // Get current user profile
+    const user = await getCurrentUserProfile();
+    if (!user) {
+      showAlert('Session Expired', 'Your session has expired. Please login again.', 'error', {
+        onConfirm: () => {
+          localStorage.clear();
+          window.location.href = 'login.html';
+        }
+      });
+      return;
+    }
+    
+    currentUser = user;
+    
+    // Set theme immediately
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark-theme');
+    }
+    updateThemeIcons();
+    
+    // Render navigation and profile
+    renderNavigation();
+    renderMobileHorizontalNavigation();
+    renderProfile();
+    
+    // Show mobile horizontal navigation bar only on mobile
+    const isMobile = window.innerWidth <= 1024;
+    if (isMobile && isOnDashboardPage) {
+      showMobileHorizontalNavBar();
+    }
+    
+    // Update page title
+    pageTitle.textContent = `Dashboard`;
+    
+    // Load coin balance in background
+    fetchCoinBalance();
+    
+    // Add event listeners for coin balance
+    coinBalanceContainer.addEventListener('click', handleCoinBalanceClick);
+    addCoinBtn.addEventListener('click', handleCoinBalanceClick);
+    
+    // Load posts
+    await loadPosts();
+    
+    // Add post event listeners
+    addPostEventListeners();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
