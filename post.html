@@ -1,0 +1,3283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Details - GEORGESTRAIT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* =========================
+       CSS VARIABLES (THEMES)
+       ========================= */
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --card-bg: #f5f5f5;
+      --border-color: #e0e0e0;
+      --button-bg: #000000;
+      --button-text: #ffffff;
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --error-color: #dc2626;
+      --success-color: #16a34a;
+      --warning-color: #f59e0b;
+      --info-color: #0ea5e9;
+      --celebrity-color: #ffd700;
+      --premium-color: #10b981;
+      --gold-color: #fbbf24;
+      --diamond-color: #a5b4fc;
+      --sidebar-width: 250px;
+      --sidebar-collapsed: 70px;
+      --header-height: 70px;
+      --modal-overlay: rgba(0, 0, 0, 0.7);
+      --shadow-light: rgba(0, 0, 0, 0.1);
+      --shadow-medium: rgba(0, 0, 0, 0.15);
+    }
+
+    .dark-theme {
+      --bg-color: #0f0f0f;
+      --text-color: #ffffff;
+      --card-bg: #1a1a1a;
+      --border-color: #2a2a2a;
+      --button-bg: #ffffff;
+      --button-text: #000000;
+      --primary-color: #3b82f6;
+      --primary-hover: #60a5fa;
+      --celebrity-color: #ffd700;
+      --premium-color: #10b981;
+      --gold-color: #fbbf24;
+      --diamond-color: #a5b4fc;
+      --modal-overlay: rgba(0, 0, 0, 0.8);
+      --shadow-light: rgba(255, 255, 255, 0.05);
+      --shadow-medium: rgba(255, 255, 255, 0.1);
+    }
+
+    /* =========================
+       GLOBAL STYLES
+       ========================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* =========================
+       CUSTOM ALERT
+       ========================= */
+    .custom-alert-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .custom-alert-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .custom-alert {
+      background-color: var(--bg-color);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+
+    .custom-alert-overlay.active .custom-alert {
+      transform: translateY(0);
+    }
+
+    .alert-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .alert-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .alert-icon.success {
+      background-color: rgba(22, 163, 74, 0.1);
+      color: var(--success-color);
+    }
+
+    .alert-icon.error {
+      background-color: rgba(220, 38, 38, 0.1);
+      color: var(--error-color);
+    }
+
+    .alert-icon.warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+    }
+
+    .alert-icon.info {
+      background-color: rgba(14, 165, 233, 0.1);
+      color: var(--info-color);
+    }
+
+    .alert-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .alert-body {
+      padding: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-color);
+    }
+
+    .alert-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      background-color: var(--card-bg);
+    }
+
+    .alert-btn {
+      padding: 0.625rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .alert-btn.cancel {
+      background-color: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .alert-btn.cancel:hover {
+      background-color: var(--border-color);
+    }
+
+    .alert-btn.confirm {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .alert-btn.confirm:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .alert-btn.ok {
+      background-color: var(--primary-color);
+      color: white;
+      min-width: 80px;
+    }
+
+    .alert-btn.ok:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* =========================
+       MODALS
+       ========================= */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--modal-overlay);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9998;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal {
+      background-color: var(--bg-color);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background-color: var(--border-color);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      background-color: var(--card-bg);
+    }
+
+    /* =========================
+       FORM STYLES
+       ========================= */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .text-muted {
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .dark-theme .text-muted {
+      color: #aaa;
+    }
+
+    /* =========================
+       BUTTON STYLES
+       ========================= */
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+    }
+
+    .btn-danger {
+      background-color: var(--error-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-xs {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-link {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      padding: 0;
+      font-weight: normal;
+    }
+
+    .btn-link:hover {
+      text-decoration: underline;
+      background: none;
+    }
+
+    /* =========================
+       POST CARD STYLES
+       ========================= */
+    .post-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .post-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--shadow-medium);
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .post-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .post-author-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .post-author-info h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .post-time {
+      font-size: 0.875rem;
+      color: #666;
+      margin-top: 0.25rem;
+    }
+
+    .dark-theme .post-time {
+      color: #aaa;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .post-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-color);
+    }
+
+    .post-content {
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      white-space: pre-line;
+      word-wrap: break-word;
+    }
+
+    /* =========================
+       POST IMAGES STYLES - FIXED FULL DISPLAY
+       ========================= */
+    .post-images {
+      margin: 1rem 0;
+      display: grid;
+      gap: 0.5rem;
+      width: 100%;
+      max-height: 500px;
+      overflow: hidden;
+    }
+
+    .post-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .post-image:hover {
+      transform: scale(1.01);
+    }
+
+    /* SINGLE IMAGE - FULL WIDTH ON BOTH DESKTOP AND MOBILE */
+    .post-images:has(img:only-child) {
+      grid-template-columns: 1fr;
+    }
+    
+    .post-images:has(img:only-child) .post-image {
+      max-height: 500px;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    /* TWO IMAGES - SIDE BY SIDE FULL DISPLAY */
+    .post-images:has(img:nth-child(2):last-child) {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 300px;
+    }
+
+    /* THREE IMAGES - COLLAGE LAYOUT */
+    .post-images:has(img:nth-child(3):last-child) {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 250px;
+    }
+    
+    .post-images:has(img:nth-child(3):last-child) img:first-child {
+      grid-column: span 2;
+      height: 350px;
+    }
+
+    /* FOUR IMAGES - 2x2 GRID */
+    .post-images:has(img:nth-child(4):last-child) {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 250px;
+    }
+
+    /* FIVE IMAGES - 3x2 WITH FIRST IMAGE TAKING 2 COLUMNS */
+    .post-images:has(img:nth-child(5):last-child) {
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-auto-rows: 200px;
+    }
+    
+    .post-images:has(img:nth-child(5):last-child) img:first-child {
+      grid-column: span 3;
+      height: 300px;
+    }
+
+    /* =========================
+       POST STATS - HORIZONTAL LAYOUT
+       ========================= */
+    .post-stats {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 0;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      margin: 1rem 0;
+    }
+
+    .post-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .post-stat:hover {
+      background-color: var(--border-color);
+    }
+
+    .post-stat i {
+      font-size: 1.2rem;
+      transition: transform 0.2s ease;
+    }
+
+    .post-stat.liked {
+      color: var(--error-color);
+    }
+
+    .post-stat.liked i {
+      color: var(--error-color);
+      animation: heartBeat 0.3s ease;
+    }
+
+    @keyframes heartBeat {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    /* =========================
+       COMMENTS SECTION - ENHANCED
+       ========================= */
+    .comments-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      display: block !important;
+    }
+
+    .comments-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .comments-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .comment-form-container {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .comment-input-wrapper {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+    }
+
+    .comment-input {
+      flex: 1;
+      padding: 0.75rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-color);
+      font-size: 0.95rem;
+      resize: vertical;
+      min-height: 60px;
+      transition: border-color 0.2s ease;
+    }
+
+    .comment-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .submit-comment-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .submit-comment-btn:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.05);
+    }
+
+    .submit-comment-btn i {
+      font-size: 1.2rem;
+    }
+
+    .reply-to-indicator {
+      background-color: rgba(37, 99, 235, 0.1);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      border-left: 3px solid var(--primary-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .reply-to-text {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cancel-reply-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .cancel-reply-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .comment-card {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+
+    .comment-author {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .comment-author-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .comment-author-info h5 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .comment-time {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 0.125rem;
+    }
+
+    .dark-theme .comment-time {
+      color: #aaa;
+    }
+
+    .comment-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .comment-more-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .comment-more-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .comment-more-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px var(--shadow-medium);
+      z-index: 10;
+      min-width: 120px;
+      display: none;
+    }
+
+    .comment-more-dropdown.show {
+      display: block;
+    }
+
+    .comment-more-item {
+      padding: 0.5rem 0.75rem;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      font-size: 0.9rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .comment-more-item:hover {
+      background-color: var(--border-color);
+    }
+
+    .comment-more-item.delete {
+      color: var(--error-color);
+    }
+
+    .comment-content {
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+      word-wrap: break-word;
+    }
+
+    .comment-reply-link {
+      color: var(--primary-color);
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: color 0.2s ease;
+    }
+
+    .comment-reply-link:hover {
+      color: var(--primary-hover);
+      text-decoration: underline;
+    }
+
+    .comment-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .comment-like-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .comment-like-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .comment-like-btn.liked {
+      color: var(--error-color);
+    }
+
+    /* =========================
+       LOVE EMOJI BURST ANIMATION - FLOATING EFFECT
+       ========================= */
+    @keyframes loveBurst {
+      0% {
+        transform: scale(0) rotate(0deg) translateY(0);
+        opacity: 1;
+      }
+      20% {
+        transform: scale(1.5) rotate(90deg) translateY(-20px);
+        opacity: 0.9;
+      }
+      40% {
+        transform: scale(1.8) rotate(180deg) translateY(-40px);
+        opacity: 0.8;
+      }
+      60% {
+        transform: scale(2) rotate(270deg) translateY(-60px);
+        opacity: 0.6;
+      }
+      80% {
+        transform: scale(2.2) rotate(360deg) translateY(-80px);
+        opacity: 0.4;
+      }
+      100% {
+        transform: scale(2.5) rotate(450deg) translateY(-100px);
+        opacity: 0;
+      }
+    }
+
+    .love-burst {
+      position: fixed;
+      pointer-events: none;
+      font-size: 2rem;
+      animation: loveBurst 1.2s ease-out forwards;
+      z-index: 10000;
+      user-select: none;
+      filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.5));
+    }
+
+    /* =========================
+       BADGES
+       ========================= */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-left: 0.25rem;
+    }
+
+    .badge-warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .badge-info {
+      background-color: rgba(14, 165, 233, 0.1);
+      color: var(--info-color);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+    }
+
+    .badge-admin {
+      background-color: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    /* Verification badges */
+    .verification-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 4px;
+      font-size: 14px;
+      cursor: default;
+    }
+    
+    .blue-badge {
+      color: #1DA1F2;
+    }
+    
+    .golden-badge {
+      color: #FFD700;
+    }
+    
+    /* Profile badges */
+    .profile-badges {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+    }
+
+    /* =========================
+       HEADER - UPDATED FOR COIN BALANCE
+       ========================= */
+    header {
+      height: var(--header-height);
+      background-color: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-decoration: none;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      color: var(--primary-color);
+    }
+
+    .hamburger-menu {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .hamburger-menu:hover {
+      background-color: var(--card-bg);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* COIN BALANCE SECTION */
+    .coin-balance-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      background-color: var(--card-bg);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border-color);
+      height: 40px;
+    }
+
+    .coin-balance-container:hover {
+      background-color: var(--border-color);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .coin-icon {
+      color: #fbbf24;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+    }
+
+    .coin-amount {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-color);
+      white-space: nowrap;
+    }
+
+    .add-coin-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #10b981;
+      color: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      margin-left: 0.25rem;
+    }
+
+    .add-coin-btn:hover {
+      background-color: #0da271;
+      transform: scale(1.1);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-actions button {
+      padding: 0.4rem 0.8rem;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .header-actions button:hover {
+      opacity: 0.8;
+    }
+
+    /* =========================
+       MAIN LAYOUT - ADJUSTED
+       ========================= */
+    .main-container {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    /* =========================
+       SIDEBAR - DESKTOP
+       ========================= */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      transition: width 0.3s ease;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed);
+    }
+
+    .sidebar-toggle {
+      display: flex;
+      justify-content: flex-end;
+      padding: 1rem;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.875rem 1.5rem;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background-color: var(--border-color);
+      color: var(--primary-color);
+    }
+
+    .nav-item i {
+      width: 24px;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    .nav-text {
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed .nav-text {
+      opacity: 0;
+      width: 0;
+    }
+
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+      padding: 0.875rem;
+    }
+
+    /* SIDEBAR PROFILE SECTION */
+    .sidebar-profile {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 80px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .profile-info {
+      flex: 1;
+      overflow: hidden;
+      transition: opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .sidebar.collapsed .profile-info {
+      opacity: 0;
+      width: 0;
+    }
+
+    .profile-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .profile-role {
+      font-size: 0.8rem;
+      color: #666;
+      background-color: var(--border-color);
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .dark-theme .profile-role {
+      color: #aaa;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .logout-btn:hover {
+      background-color: rgba(220, 38, 38, 0.1);
+    }
+
+    /* =========================
+       MOBILE SIDEBAR OVERLAY
+       ========================= */
+    .mobile-sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 95;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .mobile-sidebar-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .mobile-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      z-index: 96;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .mobile-sidebar.active {
+      transform: translateX(0);
+    }
+
+    /* MOBILE HEADER */
+    .mobile-sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      height: var(--header-height);
+    }
+
+    .mobile-sidebar-header .logo {
+      font-size: 1.2rem;
+    }
+
+    .mobile-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .mobile-theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mobile-theme-toggle:hover {
+      background-color: var(--border-color);
+    }
+
+    .mobile-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .mobile-close-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .mobile-sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-sidebar-profile {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    /* =========================
+       MAIN CONTENT
+       ========================= */
+    .main-content {
+      flex: 1;
+      padding: 1.5rem;
+      margin-left: var(--sidebar-width);
+      transition: margin-left 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar.collapsed ~ .main-content {
+      margin-left: var(--sidebar-collapsed);
+    }
+
+    /* =========================
+       PAGE HEADER
+       ========================= */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    /* =========================
+       LOADING SPINNER
+       ========================= */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #666;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      color: var(--border-color);
+      margin-bottom: 1rem;
+    }
+
+    /* =========================
+       BACK TO DASHBOARD BUTTON
+       ========================= */
+    .back-to-dashboard {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .back-to-dashboard:hover {
+      background-color: var(--border-color);
+    }
+
+    /* =========================
+       RESPONSIVE STYLES
+       ========================= */
+    @media (max-width: 1024px) {
+      .hamburger-menu {
+        display: block;
+      }
+      
+      .sidebar {
+        display: none;
+      }
+      
+      .main-content {
+        margin-left: 0 !important;
+        padding: 1rem;
+      }
+      
+      /* Hide theme toggle in header on mobile */
+      .header-actions {
+        display: none;
+      }
+      
+      /* Show theme toggle in mobile header */
+      .mobile-theme-toggle {
+        display: flex;
+      }
+      
+      /* ADJUST IMAGE COLLAGE FOR MOBILE - FIXED FULL DISPLAY */
+      .post-images {
+        max-height: none !important;
+      }
+      
+      .post-images:has(img:nth-child(2):last-child) {
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 250px;
+      }
+      
+      .post-images:has(img:nth-child(3):last-child) {
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 200px;
+      }
+      
+      .post-images:has(img:nth-child(3):last-child) img:first-child {
+        grid-column: span 2;
+        height: 300px;
+      }
+      
+      .post-images:has(img:nth-child(4):last-child) {
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 200px;
+      }
+      
+      .post-images:has(img:nth-child(5):last-child) {
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 150px;
+      }
+      
+      .post-images:has(img:nth-child(5):last-child) img:first-child {
+        grid-column: span 2;
+        height: 250px;
+      }
+      
+      /* Show comments section on mobile */
+      .comments-section {
+        display: block !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 0 0.75rem;
+      }
+      
+      /* Adjust coin balance for mobile */
+      .coin-balance-container {
+        padding: 0.3rem 0.6rem;
+        gap: 0.4rem;
+        height: 36px;
+      }
+      
+      .coin-icon {
+        font-size: 1.1rem;
+      }
+      
+      .coin-amount {
+        font-size: 0.85rem;
+      }
+      
+      .add-coin-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+      }
+      
+      .logo {
+        font-size: 1.2rem;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .page-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      
+      /* Adjust post stats for mobile */
+      .post-stats {
+        justify-content: space-around;
+      }
+      
+      /* ADJUST IMAGES FOR MOBILE - FIXED FULL DISPLAY */
+      .post-images:has(img:only-child) .post-image {
+        max-height: 400px;
+        object-fit: contain;
+      }
+      
+      .post-images:has(img:nth-child(2):last-child) {
+        grid-auto-rows: 200px;
+      }
+      
+      .post-images:has(img:nth-child(3):last-child) img:first-child {
+        height: 250px;
+      }
+      
+      .post-images:has(img:nth-child(4):last-child) {
+        grid-auto-rows: 150px;
+      }
+      
+      .post-images:has(img:nth-child(5):last-child) {
+        grid-auto-rows: 120px;
+      }
+      
+      .post-images:has(img:nth-child(5):last-child) img:first-child {
+        height: 200px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .alert-btn, .modal-btn {
+        width: 100%;
+      }
+      
+      /* Adjust header for very small screens */
+      header {
+        padding: 0 0.5rem;
+      }
+      
+      .logo {
+        font-size: 1.1rem;
+      }
+      
+      .hamburger-menu {
+        font-size: 1.3rem;
+        padding: 0.4rem;
+      }
+      
+      /* Coin balance adjustments */
+      .coin-balance-container {
+        padding: 0.25rem 0.5rem;
+        gap: 0.3rem;
+      }
+      
+      .coin-amount {
+        font-size: 0.8rem;
+      }
+      
+      .add-coin-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      
+      .post-card {
+        padding: 1rem;
+      }
+      
+      .post-title {
+        font-size: 1.1rem;
+      }
+      
+      /* FURTHER ADJUST IMAGES FOR SMALL SCREENS - FIXED FULL DISPLAY */
+      .post-images:has(img:only-child) .post-image {
+        max-height: 300px;
+      }
+      
+      .post-images:has(img:nth-child(2):last-child) {
+        grid-auto-rows: 150px;
+      }
+      
+      .post-images:has(img:nth-child(3):last-child) {
+        grid-auto-rows: 120px;
+      }
+      
+      .post-images:has(img:nth-child(3):last-child) img:first-child {
+        height: 200px;
+      }
+      
+      .post-images:has(img:nth-child(4):last-child) {
+        grid-auto-rows: 100px;
+      }
+      
+      .post-images:has(img:nth-child(5):last-child) {
+        grid-auto-rows: 80px;
+      }
+      
+      .post-images:has(img:nth-child(5):last-child) img:first-child {
+        height: 150px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      /* Hide coin balance text on very small screens */
+      .coin-amount {
+        display: none;
+      }
+      
+      .coin-balance-container {
+        padding: 0.5rem;
+        gap: 0.25rem;
+      }
+      
+      .coin-icon {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .sidebar {
+        padding-top: 0.5rem;
+      }
+      
+      .nav-item {
+        padding: 0.625rem 1rem;
+      }
+    }
+
+    /* Desktop specific */
+    @media (min-width: 1025px) {
+      /* Nothing specific needed */
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--card-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Utility classes */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 1rem; }
+    .mt-4 { margin-top: 1.5rem; }
+    .mt-5 { margin-top: 2rem; }
+
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 1rem; }
+    .mb-4 { margin-bottom: 1.5rem; }
+    .mb-5 { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <!-- Custom Alert -->
+  <div class="custom-alert-overlay" id="custom-alert-overlay">
+    <div class="custom-alert" id="custom-alert">
+      <div class="alert-header">
+        <div class="alert-icon" id="alert-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <h3 class="alert-title" id="alert-title">Alert</h3>
+      </div>
+      <div class="alert-body" id="alert-body">
+        This is a custom alert message.
+      </div>
+      <div class="alert-footer" id="alert-footer">
+        <button class="alert-btn ok" id="alert-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div class="mobile-sidebar-overlay" id="mobile-sidebar-overlay"></div>
+
+  <!-- Mobile Sidebar -->
+  <div class="mobile-sidebar" id="mobile-sidebar">
+    <div class="mobile-sidebar-header">
+      <a href="#" class="logo">
+        <i class="fas fa-guitar logo-icon"></i>
+        GEORGESTRAIT
+      </a>
+      <div class="mobile-header-actions">
+        <button class="mobile-theme-toggle" id="mobile-theme-toggle">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="mobile-close-btn" id="mobile-close-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    
+    <nav class="mobile-sidebar-nav" id="mobile-nav">
+      <!-- Navigation items will be loaded here -->
+    </nav>
+    
+    <div class="mobile-sidebar-profile" id="mobile-profile-section">
+      <!-- Profile will be loaded here -->
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <button class="hamburger-menu" id="hamburger-menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a href="#" class="logo">
+        <i class="fas fa-guitar logo-icon"></i>
+        GEORGESTRAIT
+      </a>
+    </div>
+    
+    <div class="header-right">
+      <!-- Coin Balance Feature -->
+      <div class="coin-balance-container" id="coin-balance-container">
+        <div class="coin-icon">
+          <i class="fas fa-coins"></i>
+        </div>
+        <div class="coin-amount" id="coin-amount">0.00</div>
+        <button class="add-coin-btn" id="add-coin-btn">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      
+      <div class="header-actions">
+        <button id="theme-toggle">
+          <i class="fas fa-moon"></i> Theme
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Desktop Sidebar (Hidden on mobile) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-toggle">
+        <button class="toggle-btn" id="sidebar-toggle">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- Navigation items will be loaded here -->
+      </nav>
+      
+      <div class="sidebar-profile" id="profile-section">
+        <!-- Profile will be loaded here -->
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+      <!-- Back to Dashboard -->
+      <a href="dashboard.html" class="back-to-dashboard">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+      </a>
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title" id="page-title">Post Details</h1>
+        <div class="page-actions" id="page-actions">
+          <!-- No actions needed for post page -->
+        </div>
+      </div>
+
+      <!-- Single Post Container -->
+      <div id="post-container">
+        <div class="text-center mt-5">
+          <div class="spinner"></div>
+          <p class="mt-2">Loading post...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+  // =========================
+  // API BASE URL
+  // =========================
+  const API_BASE_URL = 'http://localhost:5000/api';
+  let currentUser = null;
+  let coinBalance = 0;
+  let currentPost = null;
+  let replyToCommentId = null;
+  let replyToCommentAuthor = null;
+  let commentMoreDropdowns = [];
+
+  // =========================
+  // DOM ELEMENTS
+  // =========================
+  // Theme
+  const themeToggle = document.getElementById('theme-toggle');
+  const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
+  
+  // Sidebar & Navigation
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const hamburgerMenu = document.getElementById('hamburger-menu');
+  const mobileSidebar = document.getElementById('mobile-sidebar');
+  const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
+  const mobileCloseBtn = document.getElementById('mobile-close-btn');
+  const sidebarNav = document.getElementById('sidebar-nav');
+  const mobileNav = document.getElementById('mobile-nav');
+  const profileSection = document.getElementById('profile-section');
+  const mobileProfileSection = document.getElementById('mobile-profile-section');
+  
+  // Coin Balance
+  const coinBalanceContainer = document.getElementById('coin-balance-container');
+  const addCoinBtn = document.getElementById('add-coin-btn');
+  const coinAmount = document.getElementById('coin-amount');
+  
+  // Content Area
+  const pageTitle = document.getElementById('page-title');
+  const postContainer = document.getElementById('post-container');
+  
+  // Custom Alert
+  const customAlertOverlay = document.getElementById('custom-alert-overlay');
+  const customAlert = document.getElementById('custom-alert');
+  const alertIcon = document.getElementById('alert-icon');
+  const alertTitle = document.getElementById('alert-title');
+  const alertBody = document.getElementById('alert-body');
+  const alertFooter = document.getElementById('alert-footer');
+
+  // =========================
+  // NAVIGATION CONFIG
+  // =========================
+  const navItems = [
+    { id: 'dashboard', icon: 'fas fa-home', text: 'Home', href: 'dashboard.html' },
+    { id: 'post', icon: 'fas fa-newspaper', text: 'Post', href: 'post.html', active: true },
+    { id: 'live', icon: 'fas fa-video', text: 'Live', href: 'live.html' },
+    { id: 'message', icon: 'fas fa-comments', text: 'Message', href: 'message.html' },
+    { id: 'notification', icon: 'fas fa-bell', text: 'Notification', href: 'notification.html' },
+    { id: 'ticket', icon: 'fas fa-ticket-alt', text: 'Ticket', href: 'ticket.html' },
+    { id: 'store', icon: 'fas fa-store', text: 'Store', href: 'store.html' },
+    { id: 'payment', icon: 'fas fa-credit-card', text: 'Payment', href: 'payment.html' },
+    { id: 'profile', icon: 'fas fa-user-circle', text: 'Profile', href: 'profile.html' }
+  ];
+
+  // =========================
+  // CUSTOM ALERT SYSTEM
+  // =========================
+  function showAlert(title, message, type = 'info', options = {}) {
+    const icons = {
+      success: { icon: 'fa-check-circle', color: 'success' },
+      error: { icon: 'fa-exclamation-circle', color: 'error' },
+      warning: { icon: 'fa-exclamation-triangle', color: 'warning' },
+      info: { icon: 'fa-info-circle', color: 'info' }
+    };
+    
+    const selectedType = icons[type] || icons.info;
+    
+    alertIcon.innerHTML = `<i class="fas ${selectedType.icon}"></i>`;
+    alertIcon.className = `alert-icon ${selectedType.color}`;
+    
+    alertTitle.textContent = title;
+    alertBody.textContent = message;
+    
+    alertFooter.innerHTML = '';
+    
+    if (options.showCancel) {
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'alert-btn cancel';
+      cancelBtn.textContent = options.cancelText || 'Cancel';
+      cancelBtn.onclick = () => {
+        hideAlert();
+        if (options.onCancel) options.onCancel();
+      };
+      
+      const confirmBtn = document.createElement('button');
+      confirmBtn.className = 'alert-btn confirm';
+      confirmBtn.textContent = options.confirmText || 'Confirm';
+      confirmBtn.onclick = () => {
+        hideAlert();
+        if (options.onConfirm) options.onConfirm();
+      };
+      
+      alertFooter.appendChild(cancelBtn);
+      alertFooter.appendChild(confirmBtn);
+    } else {
+      const okBtn = document.createElement('button');
+      okBtn.className = 'alert-btn ok';
+      okBtn.textContent = options.okText || 'OK';
+      okBtn.onclick = () => {
+        hideAlert();
+        if (options.onConfirm) options.onConfirm();
+      };
+      alertFooter.appendChild(okBtn);
+    }
+    
+    customAlertOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function hideAlert() {
+    customAlertOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+  
+  customAlertOverlay.addEventListener('click', (e) => {
+    if (e.target === customAlertOverlay && !customAlert.contains(e.target)) {
+      hideAlert();
+    }
+  });
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && customAlertOverlay.classList.contains('active')) {
+      hideAlert();
+    }
+  });
+
+  // =========================
+  // MODAL FUNCTIONS
+  // =========================
+  function openModal(modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+  // =========================
+  // THEME TOGGLE FUNCTIONS
+  // =========================
+  function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    updateThemeIcons();
+    
+    if (document.body.classList.contains('dark-theme')) {
+      localStorage.setItem('theme', 'dark');
+    } else {
+      localStorage.setItem('theme', 'light');
+    }
+  }
+  
+  function updateThemeIcons() {
+    const isDark = document.body.classList.contains('dark-theme');
+    const sunIcon = '<i class="fas fa-sun"></i>';
+    const moonIcon = '<i class="fas fa-moon"></i>';
+    
+    // Update desktop theme toggle
+    themeToggle.innerHTML = isDark ? `${sunIcon} Light Mode` : `${moonIcon} Theme`;
+    
+    // Update mobile theme toggle
+    mobileThemeToggle.innerHTML = isDark ? sunIcon : moonIcon;
+  }
+
+  // Theme toggle event listeners
+  themeToggle.addEventListener('click', toggleTheme);
+  mobileThemeToggle.addEventListener('click', toggleTheme);
+
+  // =========================
+  // SIDEBAR TOGGLE
+  // =========================
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    const icon = sidebarToggle.querySelector('i');
+    if (sidebar.classList.contains('collapsed')) {
+      icon.className = 'fas fa-chevron-right';
+    } else {
+      icon.className = 'fas fa-chevron-left';
+    }
+  });
+
+  // Mobile sidebar toggle
+  hamburgerMenu.addEventListener('click', () => {
+    mobileSidebar.classList.add('active');
+    mobileSidebarOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+
+  mobileCloseBtn.addEventListener('click', () => {
+    mobileSidebar.classList.remove('active');
+    mobileSidebarOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  });
+
+  mobileSidebarOverlay.addEventListener('click', () => {
+    mobileSidebar.classList.remove('active');
+    mobileSidebarOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  });
+
+  // =========================
+  // COIN BALANCE FUNCTIONS
+  // =========================
+  function formatCoinBalance(balance) {
+    return parseFloat(balance).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function updateCoinBalanceUI() {
+    coinAmount.textContent = formatCoinBalance(coinBalance);
+  }
+
+  function handleCoinBalanceClick() {
+    window.location.href = 'payment.html';
+  }
+
+  // =========================
+  // VERIFICATION BADGE FUNCTIONS
+  // =========================
+  function getVerificationBadge(user) {
+    if (!user) return '';
+    
+    let badge = '';
+    
+    // Add blue verification badge for premium membership
+    if (user.membership === 'premium' || user.isPremium === true || user.role === 'premium') {
+      badge += '<i class="fas fa-check-circle blue-badge verification-badge" title="Premium Member"></i>';
+    }
+    
+    // Add golden crown for management or celebrity roles
+    if (user.role === 'management' || user.role === 'celebrity' || user.isCelebrity === true) {
+      badge += '<i class="fas fa-crown golden-badge verification-badge" title="Verified Account"></i>';
+    }
+    
+    return badge;
+  }
+
+  function renderAuthorWithBadge(author) {
+    if (!author) return 'Unknown';
+    
+    const badge = getVerificationBadge(author);
+    return `${author.name} ${badge}`;
+  }
+
+  // =========================
+  // NAVIGATION RENDERING
+  // =========================
+  function renderNavigation() {
+    // Clear existing nav
+    sidebarNav.innerHTML = '';
+    mobileNav.innerHTML = '';
+    
+    navItems.forEach(item => {
+      // Desktop sidebar item
+      const desktopItem = document.createElement('a');
+      desktopItem.href = item.href;
+      desktopItem.className = `nav-item ${item.active ? 'active' : ''}`;
+      desktopItem.dataset.page = item.id;
+      desktopItem.innerHTML = `
+        <i class="${item.icon}"></i>
+        <span class="nav-text">${item.text}</span>
+      `;
+      
+      sidebarNav.appendChild(desktopItem);
+      
+      // Mobile sidebar item
+      const mobileItem = document.createElement('a');
+      mobileItem.href = item.href;
+      mobileItem.className = `nav-item mobile-nav-item ${item.active ? 'active' : ''}`;
+      mobileItem.dataset.page = item.id;
+      mobileItem.innerHTML = `
+        <i class="${item.icon}"></i>
+        <span class="nav-text">${item.text}</span>
+      `;
+      
+      // Add click event for mobile navigation
+      mobileItem.addEventListener('click', (e) => {
+        // Close mobile sidebar when navigating
+        mobileSidebar.classList.remove('active');
+        mobileSidebarOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      });
+      
+      mobileNav.appendChild(mobileItem);
+    });
+  }
+
+  // =========================
+  // LOGOUT HANDLER
+  // =========================
+  async function handleLogout() {
+    showAlert(
+      'Logout',
+      'Are you sure you want to logout?',
+      'warning',
+      {
+        showCancel: true,
+        cancelText: 'Cancel',
+        confirmText: 'Logout',
+        onConfirm: async () => {
+          try {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+              await fetch(`${API_BASE_URL}/auth/logout`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+            }
+          } catch (error) {
+            console.error('Logout API error:', error);
+          } finally {
+            localStorage.clear();
+            window.location.href = 'login.html';
+          }
+        }
+      }
+    );
+  }
+
+  // =========================
+  // PROFILE RENDERING
+  // =========================
+  function renderProfile() {
+    if (!currentUser) return;
+    
+    // Get first letter of name for avatar
+    const firstLetter = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+    
+    // Get location info for role display
+    const locationInfo = currentUser.state && currentUser.country 
+      ? `${currentUser.state}, ${currentUser.country}`
+      : (currentUser.country || 'Earth');
+    
+    // Get user badges
+    const userBadges = getVerificationBadge(currentUser);
+    
+    // Desktop sidebar profile
+    const desktopProfileHTML = `
+      <div class="profile-pic" style="background-color: ${stringToColor(currentUser.name)};">
+        ${currentUser.profilePicture 
+          ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}" style="width: 100%; height: 100%; border-radius: 50%;">` 
+          : firstLetter}
+      </div>
+      <div class="profile-info">
+        <div class="profile-name">
+          ${currentUser.name}
+          <div class="profile-badges">${userBadges}</div>
+        </div>
+        <div class="profile-role">${locationInfo}</div>
+      </div>
+      <button class="logout-btn" id="logout-btn-desktop" title="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    `;
+    
+    // Mobile sidebar profile
+    const mobileProfileHTML = `
+      <div class="sidebar-profile">
+        <div class="profile-pic" style="background-color: ${stringToColor(currentUser.name)};">
+          ${currentUser.profilePicture 
+            ? `<img src="${currentUser.profilePicture}" alt="${currentUser.name}" style="width: 100%; height: 100%; border-radius: 50%;">` 
+            : firstLetter}
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">
+            ${currentUser.name}
+            <div class="profile-badges">${userBadges}</div>
+          </div>
+          <div class="profile-role">${locationInfo}</div>
+        </div>
+        <button class="logout-btn" id="logout-btn-mobile" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    `;
+    
+    profileSection.innerHTML = desktopProfileHTML;
+    mobileProfileSection.innerHTML = mobileProfileHTML;
+    
+    // Add logout event listeners
+    const desktopLogoutBtn = document.getElementById('logout-btn-desktop');
+    const mobileLogoutBtn = document.getElementById('logout-btn-mobile');
+    
+    if (desktopLogoutBtn) {
+      desktopLogoutBtn.addEventListener('click', handleLogout);
+    }
+    
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', handleLogout);
+    }
+  }
+
+  // Helper function to generate consistent color from string
+  function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xFF;
+      color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+  }
+
+  // =========================
+  // API FUNCTIONS
+  // =========================
+  async function fetchWithAuth(url, options = {}) {
+    const token = localStorage.getItem('accessToken');
+    
+    const headers = {
+      ...options.headers
+    };
+    
+    // Don't set Content-Type for FormData
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(url, {
+      ...options,
+      headers
+    });
+    
+    // Handle token expiration
+    if (response.status === 401) {
+      try {
+        const newToken = await refreshToken();
+        if (newToken) {
+          headers['Authorization'] = `Bearer ${newToken}`;
+          const retryResponse = await fetch(url, {
+            ...options,
+            headers
+          });
+          return retryResponse;
+        }
+      } catch (error) {
+        // Refresh failed, redirect to login
+        showAlert('Session Expired', 'Your session has expired. Please login again.', 'error', {
+          onConfirm: () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+          }
+        });
+        throw new Error('Authentication failed');
+      }
+    }
+    
+    return response;
+  }
+
+  async function refreshToken() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) return null;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.accessToken);
+        return data.accessToken;
+      }
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+    }
+    
+    return null;
+  }
+
+  // =========================
+  // FETCH COIN BALANCE
+  // =========================
+  async function fetchCoinBalance() {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/auth/coin-balance`);
+      if (response.ok) {
+        const data = await response.json();
+        coinBalance = data.coinBalance || 0;
+        updateCoinBalanceUI();
+      } else {
+        console.error('Failed to fetch coin balance:', response.status);
+      }
+    } catch (error) {
+      console.error('Coin balance fetch error:', error);
+    }
+  }
+
+  // =========================
+  // AUTH/ME API CALL
+  // =========================
+  async function getCurrentUserProfile() {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/auth/me`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.user;
+      } else if (response.status === 401 || response.status === 403) {
+        return null;
+      }
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      return null;
+    }
+    return null;
+  }
+
+  // =========================
+  // LIKE FUNCTIONS
+  // =========================
+  async function togglePostLike(postId, isLiked) {
+    try {
+      const url = `${API_BASE_URL}/likes/post`;
+      const method = isLiked ? 'DELETE' : 'POST';
+      
+      const response = await fetchWithAuth(url, {
+        method: method,
+        body: JSON.stringify({ postId })
+      });
+      
+      if (response.ok) {
+        return await response.json();
+      } else if (response.status === 400 || response.status === 200) {
+        return { message: 'Already processed' };
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to toggle like');
+      }
+    } catch (error) {
+      console.error('Toggle post like error:', error);
+      showAlert('Error', error.message || 'Failed to toggle like', 'error');
+      throw error;
+    }
+  }
+
+  async function toggleCommentLike(commentId, isLiked) {
+    try {
+      const url = `${API_BASE_URL}/likes/comment`;
+      const method = isLiked ? 'DELETE' : 'POST';
+      
+      const response = await fetchWithAuth(url, {
+        method: method,
+        body: JSON.stringify({ commentId })
+      });
+      
+      if (response.ok) {
+        return await response.json();
+      } else if (response.status === 400) {
+        return { message: 'Already processed' };
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to toggle like');
+      }
+    } catch (error) {
+      console.error('Toggle comment like error:', error);
+      showAlert('Error', error.message || 'Failed to toggle like', 'error');
+      throw error;
+    }
+  }
+
+  // =========================
+  // COMMENT FUNCTIONS
+  // =========================
+  async function submitComment(postId, content, replyTo = null) {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({
+          postId,
+          content,
+          replyTo
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.comment;
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to submit comment');
+      }
+    } catch (error) {
+      console.error('Submit comment error:', error);
+      showAlert('Error', error.message || 'Failed to submit comment', 'error');
+      throw error;
+    }
+  }
+
+  async function deleteComment(commentId) {
+    try {
+      const response = await fetchWithAuth(`${API_BASE_URL}/comments/${commentId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        showAlert('Success', 'Comment deleted successfully', 'success');
+        return true;
+      } else {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete comment');
+      }
+    } catch (error) {
+      console.error('Delete comment error:', error);
+      showAlert('Error', error.message || 'Failed to delete comment', 'error');
+      return false;
+    }
+  }
+
+  // =========================
+  // LOVE EMOJI BURST ANIMATION - FLOATING
+  // =========================
+  function createLoveBurst(x, y) {
+    const loveBurst = document.createElement('div');
+    loveBurst.className = 'love-burst';
+    loveBurst.innerHTML = '❤️';
+    loveBurst.style.left = `${x}px`;
+    loveBurst.style.top = `${y}px`;
+    loveBurst.style.position = 'fixed';
+    loveBurst.style.zIndex = '10000';
+    document.body.appendChild(loveBurst);
+    
+    // Remove after animation completes
+    setTimeout(() => {
+      if (loveBurst.parentNode) {
+        loveBurst.remove();
+      }
+    }, 1200);
+  }
+
+  // =========================
+  // COMMENT MORE DROPDOWN MANAGEMENT
+  // =========================
+  function closeAllCommentDropdowns() {
+    commentMoreDropdowns.forEach(dropdown => {
+      dropdown.classList.remove('show');
+    });
+  }
+
+  // =========================
+  // POST FUNCTIONS
+  // =========================
+  async function loadPost() {
+    // Show loading state
+    postContainer.innerHTML = `
+      <div class="text-center mt-5">
+        <div class="spinner"></div>
+        <p class="mt-2">Loading post...</p>
+      </div>
+    `;
+    
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const postId = urlParams.get('post');
+      
+      if (!postId) {
+        showAlert('Error', 'No post specified', 'error', {
+          onConfirm: () => {
+            window.location.href = 'dashboard.html';
+          }
+        });
+        return;
+      }
+      
+      // Fetch post with comments
+      const response = await fetchWithAuth(`${API_BASE_URL}/posts/${postId}`);
+      if (response.ok) {
+        const data = await response.json();
+        currentPost = data.post;
+        renderPost();
+        
+        // Check for hash navigation to specific comment
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#comment-')) {
+          const commentId = hash.replace('#comment-', '');
+          setTimeout(() => {
+            scrollToComment(commentId);
+          }, 500);
+        }
+      } else {
+        showAlert('Error', 'Failed to load post', 'error', {
+          onConfirm: () => {
+            window.location.href = 'dashboard.html';
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Load post error:', error);
+      showAlert('Error', 'Failed to load post', 'error');
+    }
+  }
+
+  function scrollToComment(commentId) {
+    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (commentElement) {
+      commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // Highlight the comment
+      commentElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.3)';
+      commentElement.style.transition = 'box-shadow 0.3s ease';
+      
+      setTimeout(() => {
+        commentElement.style.boxShadow = '';
+      }, 3000);
+    }
+  }
+
+  function renderPost() {
+    if (!currentPost) {
+      postContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <i class="fas fa-exclamation-circle"></i>
+          </div>
+          <h3>Post Not Found</h3>
+          <p>The post you're looking for doesn't exist or you don't have permission to view it.</p>
+          <a href="dashboard.html" class="btn btn-primary mt-3">Back to Dashboard</a>
+        </div>
+      `;
+      return;
+    }
+
+    const author = currentPost.author || {};
+    const likeCount = currentPost.likeCount || currentPost.likes?.length || 0;
+    const isLikedByCurrentUser = currentPost.likes?.some(like => like.userId === currentUser?.id) || false;
+    const commentCount = currentPost.comments?.length || 0;
+    
+    // Use displayDate which is already set in backend
+    const displayDate = currentPost.displayDate || currentPost.createdAt;
+    const formattedDate = new Date(displayDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    // FIXED: Images display full on both web and mobile with proper collage layout
+    let imagesHTML = '';
+    if (currentPost.images && currentPost.images.length > 0) {
+      imagesHTML = `<div class="post-images">`;
+      
+      currentPost.images.forEach((image, index) => {
+        imagesHTML += `
+          <img src="${image}" alt="Post image ${index + 1}" class="post-image" loading="lazy" onerror="this.style.display='none'">
+        `;
+      });
+      
+      imagesHTML += `</div>`;
+    }
+    
+    // Render all comments
+    let commentsHTML = '';
+    if (currentPost.comments && currentPost.comments.length > 0) {
+      commentsHTML = `
+        <div class="comments-section">
+          <div class="comments-header">
+            <h3 class="comments-title">Comments (${currentPost.comments.length})</h3>
+          </div>
+          
+          <!-- Comment Form -->
+          <div class="comment-form-container" id="comment-form-container">
+            ${replyToCommentId ? `
+              <div class="reply-to-indicator" id="reply-to-indicator">
+                <div class="reply-to-text">
+                  <i class="fas fa-reply"></i>
+                  <span>Replying to ${replyToCommentAuthor}</span>
+                </div>
+                <button class="cancel-reply-btn" id="cancel-reply-btn">
+                  <i class="fas fa-times"></i> Cancel
+                </button>
+              </div>
+            ` : ''}
+            
+            <div class="comment-input-wrapper">
+              <textarea 
+                class="comment-input" 
+                id="comment-input" 
+                placeholder="${replyToCommentId ? `Reply to ${replyToCommentAuthor}...` : 'Add a comment...'}"
+                rows="3"
+              ></textarea>
+              <button class="submit-comment-btn" id="submit-comment-btn">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Comments List -->
+          <div class="comments-list" id="comments-list">
+            ${currentPost.comments.map(comment => renderComment(comment)).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      commentsHTML = `
+        <div class="comments-section">
+          <div class="comments-header">
+            <h3 class="comments-title">Comments (0)</h3>
+          </div>
+          
+          <!-- Comment Form -->
+          <div class="comment-form-container" id="comment-form-container">
+            <div class="comment-input-wrapper">
+              <textarea 
+                class="comment-input" 
+                id="comment-input" 
+                placeholder="Add a comment..."
+                rows="3"
+              ></textarea>
+              <button class="submit-comment-btn" id="submit-comment-btn">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="fas fa-comments"></i>
+            </div>
+            <p>No comments yet. Be the first to comment!</p>
+          </div>
+        </div>
+      `;
+    }
+    
+    postContainer.innerHTML = `
+      <div class="post-card" data-post-id="${currentPost.id}">
+        <div class="post-header">
+          <div class="post-author">
+            <img src="${author.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(author.name) + '&background=7c3aed&color=fff'}" 
+                 alt="${author.name}" class="post-author-img">
+            <div class="post-author-info">
+              <h4>${renderAuthorWithBadge(author)}</h4>
+              <div class="post-time">${formattedDate}</div>
+            </div>
+          </div>
+          <div class="post-actions">
+            ${(currentPost.authorId === currentUser?.id) ? `
+              <button class="btn btn-sm btn-danger delete-post-btn" data-post-id="${currentPost.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+        
+        <h3 class="post-title">${currentPost.title}</h3>
+        <div class="post-content">${currentPost.content || ''}</div>
+        
+        ${imagesHTML}
+        
+        <!-- HORIZONTAL LIKE AND COMMENT STATS -->
+        <div class="post-stats">
+          <button class="post-stat like-post-btn ${isLikedByCurrentUser ? 'liked' : ''}" data-post-id="${currentPost.id}">
+            <i class="fas fa-heart"></i>
+            <span class="like-count">${likeCount} likes</span>
+          </button>
+          <button class="post-stat comment-post-btn" data-post-id="${currentPost.id}">
+            <i class="fas fa-comment"></i>
+            <span class="comment-count">${commentCount} comments</span>
+          </button>
+        </div>
+        
+        ${commentsHTML}
+      </div>
+    `;
+    
+    // Add event listeners after rendering
+    addPostEventListeners();
+    
+    // Initialize comment more dropdowns array
+    commentMoreDropdowns = Array.from(document.querySelectorAll('.comment-more-dropdown'));
+  }
+
+  function renderComment(comment) {
+    const commentAuthor = comment.author || {};
+    const isCommentLiked = comment.likes?.some(like => like.userId === currentUser?.id) || false;
+    const commentLikeCount = comment.likes?.length || 0;
+    const commentId = comment.id;
+    
+    const commentDisplayDate = comment.displayDate || comment.createdAt;
+    const commentDate = new Date(commentDisplayDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    // Check if comment author is management or celebrity for reply option
+    const isManagementOrCelebrity = commentAuthor.role === 'management' || commentAuthor.role === 'celebrity';
+    const replyOption = isManagementOrCelebrity ? `
+      <button class="comment-reply-link" data-comment-id="${commentId}" data-comment-author="${commentAuthor.name}">
+        <i class="fas fa-reply"></i> Reply
+      </button>
+    ` : '';
+    
+    return `
+      <div class="comment-card" data-comment-id="${commentId}" id="comment-${commentId}">
+        <div class="comment-header">
+          <div class="comment-author">
+            <img src="${commentAuthor.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(commentAuthor.name) + '&background=7c3aed&color=fff'}" 
+                 alt="${commentAuthor.name}" class="comment-author-img">
+            <div class="comment-author-info">
+              <h5>${renderAuthorWithBadge(commentAuthor)}</h5>
+              <div class="comment-time">${commentDate}</div>
+            </div>
+          </div>
+          <div class="comment-actions">
+            ${(comment.authorId === currentUser?.id) ? `
+              <div class="comment-more-container">
+                <button class="comment-more-btn" data-comment-id="${commentId}">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="comment-more-dropdown">
+                  <button class="comment-more-item delete" data-comment-id="${commentId}">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        <div class="comment-content">${comment.content}</div>
+        ${replyOption}
+        <div class="comment-footer">
+          <button class="comment-like-btn ${isCommentLiked ? 'liked' : ''}" data-comment-id="${commentId}">
+            <i class="fas fa-heart"></i>
+            <span class="comment-like-count">${commentLikeCount}</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // =========================
+  // REPLY FUNCTIONS
+  // =========================
+  function setupReply(commentId, commentAuthor) {
+    replyToCommentId = commentId;
+    replyToCommentAuthor = commentAuthor;
+    
+    const commentInput = document.getElementById('comment-input');
+    const submitBtn = document.getElementById('submit-comment-btn');
+    
+    if (commentInput) {
+      commentInput.placeholder = `Reply to ${commentAuthor}...`;
+      commentInput.focus();
+    }
+    
+    // Remove existing reply indicator if any
+    const existingIndicator = document.getElementById('reply-to-indicator');
+    if (existingIndicator) {
+      existingIndicator.remove();
+    }
+    
+    // Create new reply indicator
+    const commentFormContainer = document.getElementById('comment-form-container');
+    const replyIndicator = document.createElement('div');
+    replyIndicator.className = 'reply-to-indicator';
+    replyIndicator.id = 'reply-to-indicator';
+    replyIndicator.innerHTML = `
+      <div class="reply-to-text">
+        <i class="fas fa-reply"></i>
+        <span>Replying to ${commentAuthor}</span>
+      </div>
+      <button class="cancel-reply-btn" id="cancel-reply-btn">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+    `;
+    
+    commentFormContainer.insertBefore(replyIndicator, commentFormContainer.firstChild);
+    
+    // Add cancel reply event listener
+    const cancelReplyBtn = document.getElementById('cancel-reply-btn');
+    if (cancelReplyBtn) {
+      cancelReplyBtn.addEventListener('click', cancelReply);
+    }
+  }
+
+  function cancelReply() {
+    replyToCommentId = null;
+    replyToCommentAuthor = null;
+    
+    const commentInput = document.getElementById('comment-input');
+    if (commentInput) {
+      commentInput.placeholder = 'Add a comment...';
+      commentInput.value = '';
+    }
+    
+    const replyIndicator = document.getElementById('reply-to-indicator');
+    if (replyIndicator) {
+      replyIndicator.remove();
+    }
+  }
+
+  // =========================
+  // EVENT LISTENERS
+  // =========================
+  function addPostEventListeners() {
+    const postElement = postContainer.querySelector('.post-card');
+    if (!postElement) return;
+    
+    // Delete post
+    const deletePostBtn = postElement.querySelector('.delete-post-btn');
+    if (deletePostBtn) {
+      deletePostBtn.addEventListener('click', async () => {
+        showAlert(
+          'Delete Post',
+          'Are you sure you want to delete this post? This action cannot be undone.',
+          'warning',
+          {
+            showCancel: true,
+            cancelText: 'Cancel',
+            confirmText: 'Delete',
+            onConfirm: async () => {
+              try {
+                const response = await fetchWithAuth(`${API_BASE_URL}/posts/${currentPost.id}`, {
+                  method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                  showAlert('Success', 'Post deleted successfully', 'success', {
+                    onConfirm: () => {
+                      window.location.href = 'dashboard.html';
+                    }
+                  });
+                } else {
+                  const error = await response.json();
+                  throw new Error(error.message || 'Failed to delete post');
+                }
+              } catch (error) {
+                console.error('Delete post error:', error);
+                showAlert('Error', error.message || 'Failed to delete post', 'error');
+              }
+            }
+          }
+        );
+      });
+    }
+    
+    // Like post with floating love burst animation
+    const likePostBtn = postElement.querySelector('.like-post-btn');
+    if (likePostBtn) {
+      likePostBtn.addEventListener('click', async () => {
+        const isLiked = likePostBtn.classList.contains('liked');
+        
+        // Get button position for floating animation
+        const rect = likePostBtn.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        
+        // Create floating love burst animations
+        if (!isLiked) {
+          // Create multiple floating love emojis
+          for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+              const offsetX = (Math.random() - 0.5) * 40;
+              const offsetY = (Math.random() - 0.5) * 20;
+              createLoveBurst(x + offsetX, y + offsetY);
+            }, i * 150);
+          }
+        }
+        
+        likePostBtn.disabled = true;
+        const likeText = likePostBtn.querySelector('.like-count');
+        const currentCount = parseInt(likeText.textContent) || 0;
+        
+        try {
+          await togglePostLike(currentPost.id, isLiked);
+          
+          // Update UI
+          if (isLiked) {
+            likePostBtn.classList.remove('liked');
+            likeText.textContent = `${Math.max(0, currentCount - 1)} likes`;
+          } else {
+            likePostBtn.classList.add('liked');
+            likeText.textContent = `${currentCount + 1} likes`;
+          }
+        } catch (error) {
+          // Error already shown in togglePostLike
+        } finally {
+          likePostBtn.disabled = false;
+        }
+      });
+    }
+    
+    // Submit comment
+    const submitCommentBtn = document.getElementById('submit-comment-btn');
+    const commentInput = document.getElementById('comment-input');
+    
+    if (submitCommentBtn && commentInput) {
+      submitCommentBtn.addEventListener('click', async () => {
+        const content = commentInput.value.trim();
+        if (!content) {
+          showAlert('Error', 'Please enter a comment', 'error');
+          return;
+        }
+        
+        submitCommentBtn.disabled = true;
+        submitCommentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        try {
+          const comment = await submitComment(currentPost.id, content, replyToCommentId);
+          
+          // Clear input
+          commentInput.value = '';
+          
+          // Reset reply if any
+          if (replyToCommentId) {
+            cancelReply();
+          }
+          
+          // Add new comment to the list
+          const commentsList = document.getElementById('comments-list');
+          if (commentsList) {
+            // Create new comment element
+            const commentElement = document.createElement('div');
+            commentElement.innerHTML = renderComment(comment);
+            commentsList.insertBefore(commentElement.firstChild, commentsList.firstChild);
+            
+            // Update comment count
+            const commentsTitle = document.querySelector('.comments-title');
+            if (commentsTitle) {
+              const currentCount = parseInt(commentsTitle.textContent.match(/\((\d+)\)/)?.[1] || 0);
+              commentsTitle.textContent = `Comments (${currentCount + 1})`;
+            }
+            
+            // Update post comment count
+            const commentCountSpan = postElement.querySelector('.comment-count');
+            if (commentCountSpan) {
+              const currentCount = parseInt(commentCountSpan.textContent) || 0;
+              commentCountSpan.textContent = `${currentCount + 1} comments`;
+            }
+            
+            // Add event listeners to new comment
+            setTimeout(() => {
+              addCommentEventListeners(comment.id);
+            }, 100);
+          }
+          
+          showAlert('Success', 'Comment posted successfully', 'success');
+        } catch (error) {
+          // Error already shown in submitComment
+        } finally {
+          submitCommentBtn.disabled = false;
+          submitCommentBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        }
+      });
+      
+      // Also submit on Enter key (with Shift+Enter for new line)
+      commentInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          submitCommentBtn.click();
+        }
+      });
+    }
+    
+    // Add event listeners to all comments
+    currentPost.comments?.forEach(comment => {
+      addCommentEventListeners(comment.id);
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.comment-more-container')) {
+        closeAllCommentDropdowns();
+      }
+    });
+  }
+
+  function addCommentEventListeners(commentId) {
+    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (!commentElement) return;
+    
+    // Like comment
+    const likeCommentBtn = commentElement.querySelector('.comment-like-btn');
+    if (likeCommentBtn) {
+      likeCommentBtn.addEventListener('click', async () => {
+        const isLiked = likeCommentBtn.classList.contains('liked');
+        
+        likeCommentBtn.disabled = true;
+        const likeCountSpan = likeCommentBtn.querySelector('.comment-like-count');
+        const currentCount = parseInt(likeCountSpan.textContent) || 0;
+        
+        try {
+          await toggleCommentLike(commentId, isLiked);
+          
+          // Update UI
+          if (isLiked) {
+            likeCommentBtn.classList.remove('liked');
+            likeCountSpan.textContent = Math.max(0, currentCount - 1);
+          } else {
+            likeCommentBtn.classList.add('liked');
+            likeCountSpan.textContent = currentCount + 1;
+          }
+        } catch (error) {
+          // Error already shown in toggleCommentLike
+        } finally {
+          likeCommentBtn.disabled = false;
+        }
+      });
+    }
+    
+    // Reply link (for management/celebrity comments)
+    const replyLink = commentElement.querySelector('.comment-reply-link');
+    if (replyLink) {
+      replyLink.addEventListener('click', () => {
+        const commentAuthor = replyLink.dataset.commentAuthor;
+        setupReply(commentId, commentAuthor);
+      });
+    }
+    
+    // Comment more button and dropdown
+    const moreBtn = commentElement.querySelector('.comment-more-btn');
+    const moreDropdown = commentElement.querySelector('.comment-more-dropdown');
+    
+    if (moreBtn && moreDropdown) {
+      // Add to dropdowns array
+      commentMoreDropdowns.push(moreDropdown);
+      
+      moreBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        // Close all other dropdowns
+        closeAllCommentDropdowns();
+        
+        // Toggle this dropdown
+        moreDropdown.classList.toggle('show');
+      });
+      
+      // Delete comment
+      const deleteBtn = moreDropdown.querySelector('.delete');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+          showAlert(
+            'Delete Comment',
+            'Are you sure you want to delete this comment?',
+            'warning',
+            {
+              showCancel: true,
+              cancelText: 'Cancel',
+              confirmText: 'Delete',
+              onConfirm: async () => {
+                const success = await deleteComment(commentId);
+                if (success) {
+                  // Remove comment from DOM
+                  commentElement.remove();
+                  
+                  // Update comment count
+                  const commentsTitle = document.querySelector('.comments-title');
+                  if (commentsTitle) {
+                    const currentCount = parseInt(commentsTitle.textContent.match(/\((\d+)\)/)?.[1] || 0);
+                    commentsTitle.textContent = `Comments (${Math.max(0, currentCount - 1)})`;
+                  }
+                  
+                  // Update post comment count
+                  const postElement = postContainer.querySelector('.post-card');
+                  if (postElement) {
+                    const commentCountSpan = postElement.querySelector('.comment-count');
+                    if (commentCountSpan) {
+                      const currentCount = parseInt(commentCountSpan.textContent) || 0;
+                      commentCountSpan.textContent = `${Math.max(0, currentCount - 1)} comments`;
+                    }
+                  }
+                }
+              }
+            }
+          );
+        });
+      }
+    }
+  }
+
+  // =========================
+  // URL HANDLING
+  // =========================
+  function handleURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('post');
+    
+    if (!postId) {
+      // Check if we came from a direct link like /posts/9#comment-291
+      const pathParts = window.location.pathname.split('/');
+      const postIdFromPath = pathParts[pathParts.length - 1];
+      
+      if (postIdFromPath && postIdFromPath !== 'post.html') {
+        // Redirect to proper URL format
+        window.location.href = `post.html?post=${postIdFromPath}${window.location.hash}`;
+        return;
+      }
+    }
+  }
+
+  // =========================
+  // INITIALIZATION
+  // =========================
+  async function init() {
+    // Check authentication
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // Handle URL first
+    handleURL();
+    
+    // Set theme immediately for better UX
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark-theme');
+    }
+    updateThemeIcons();
+    
+    // Load post first for faster display
+    await loadPost();
+    
+    // Then get user profile in background
+    setTimeout(async () => {
+      const user = await getCurrentUserProfile();
+      if (!user) {
+        showAlert('Session Expired', 'Your session has expired. Please login again.', 'error', {
+          onConfirm: () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+          }
+        });
+        return;
+      }
+      
+      currentUser = user;
+      
+      // Render navigation and profile
+      renderNavigation();
+      renderProfile();
+    }, 100);
+    
+    // Load coin balance in background
+    setTimeout(async () => {
+      await fetchCoinBalance();
+    }, 200);
+    
+    // Add event listeners for coin balance
+    coinBalanceContainer.addEventListener('click', handleCoinBalanceClick);
+    addCoinBtn.addEventListener('click', handleCoinBalanceClick);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
